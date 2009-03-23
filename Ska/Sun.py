@@ -11,7 +11,7 @@ def position( julian_date ):
     Code modified from http://idlastro.gsfc.nasa.gov/ftp/pro/astro/sunpos.pro
 
     Example::
-
+    
      >>> import Ska.Sun
      >>> import Chandra.Time
      >>> jd = Chandra.Time.DateTime('2008:002:00:01:02').jd
