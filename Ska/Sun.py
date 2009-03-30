@@ -140,12 +140,12 @@ def man_pitch( att1, att2, tstart, pref_step=300.0 ):
     """ 
     Calculate pitch during a maneuver
 
-    :params att1:  initial attitude (Quat, 3 element RA,Dec,Roll, or 4 element quaternion) 
-    :params att2:  final attitude (Quat, 3 element RA,Dec,Roll, or 4 element quaternion) 
-    :param tstart: maneuver start time (DateTime compatible).  (not optional as required for sun position)  :params pref_step: preferred time separation of returned attitudes (seconds)
+    :param att1:  initial attitude (Quat, 3 element RA,Dec,Roll, or 4 element quaternion) 
+    :param att2:  final attitude (Quat, 3 element RA,Dec,Roll, or 4 element quaternion) 
+    :param tstart: maneuver start time (DateTime compatible).  (not optional as required for sun position)  
+    :param pref_step: preferred time separation of returned attitudes (seconds)
     
     :rtype: numpy recarray  [ 'time', 'q1', 'q2', 'q3', 'q4', pitch]
-    
     """
     maneuver_duration = Chandra.Maneuver.duration( att1, att2)
 
