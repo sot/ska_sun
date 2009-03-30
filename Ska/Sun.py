@@ -3,6 +3,7 @@ Utility for calculating sun position and pitch angle.
 """
 
 from Chandra.Time import DateTime
+import Chandra.Maneuver
 from math import cos, sin, acos, atan2, asin, pi, radians, degrees, ceil
 
 def position(jd):
@@ -132,4 +133,41 @@ def pitch(ra, dec, time):
     pitch = sph_dist(ra, dec, sun_ra, sun_dec)
 
     return pitch
+
+
+
+def man_pitch( att1, att2, tstart, pref_step=300.0 ):
+    """ 
+    Calculate pitch during a maneuver
+
+    :params att1:  initial attitude (Quat, 3 element RA,Dec,Roll, or 4 element quaternion) 
+    :params att2:  final attitude (Quat, 3 element RA,Dec,Roll, or 4 element quaternion) 
+    :param tstart: maneuver start time (DateTime compatible).  (not optional as required for sun position)  :params pref_step: preferred time separation of returned attitudes (seconds)
+    
+    :rtype: numpy recarray  [ 'time', 'q1', 'q2', 'q3', 'q4', pitch]
+    
+    """
+    maneuver_duration = Chandra.Maneuver.duration( att1, att2)
+
+    # round up the approximate number of preferred length chunks
+    n_chunks = math.ceil( maneuver_duration / float(pref_step) )
+    # and get a reasonable value for equal steps
+    step_secs = round( maneuver_duration / float(n_chunks) )
+    
+    attitudes = Chandra.Maneuver.attitudes(att1, att2, step=step_secs, tstart=tstart)
+    
+    pitchlist = []
+    for att in attitudes:
+        quat = Quat(att[1:])
+        time = att['time']
+        pitchlist.append({'time' : time, 
+                          'q1' : quat.q[0], 
+                          'q2' : quat.q[1], 
+                          'q3' : quat.q[2], 
+                          'q4' : quat.q[3], 
+                          'pitch' : pitch( quat, time )})
+        
+    pitches = np.rec.fromrecords( pitchlist, names= [ 'time', 'q1', 'q2', 'q3', 'q4', 'pitch'])
+    return pitches
+
 
