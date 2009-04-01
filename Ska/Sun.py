@@ -3,28 +3,25 @@ Utility for calculating sun position and pitch angle.
 """
 
 from Chandra.Time import DateTime
-import Chandra.Maneuver
 from math import cos, sin, acos, atan2, asin, pi, radians, degrees, ceil
 
-def position(jd):
+def position(time):
     """
-    Calculate the sun position at the given Julian date.
+    Calculate the sun position at the given ``time``.
 
     Code modified from http://idlastro.gsfc.nasa.gov/ftp/pro/astro/sunpos.pro
 
     Example::
     
      >>> import Ska.Sun
-     >>> import Chandra.Time
-     >>> jd = Chandra.Time.DateTime('2008:002:00:01:02').jd
-     >>> Ska.Sun.position(jd)
+     >>> Ska.Sun.position('2008:002:00:01:02')
      (281.90344855695275, -22.9892737322084)
 
-    :param jd: Input Julian date.
+    :param time: Input time (Chandra.Time compatible format)
     :rtype: RA, Dec in decimal degrees (J2000).
     """
     
-    t = (jd - 2415020)/(36525.0)
+    t = (DateTime(time).jd - 2415020)/(36525.0)
 
     dtor = pi/180
 
@@ -128,46 +125,8 @@ def pitch(ra, dec, time):
     :param time: time (any Chandra.Time format)
     :rtype: sun pitch angle (deg)
     """
-    jd = DateTime(time).jd
-    sun_ra, sun_dec = position(jd)
+    sun_ra, sun_dec = position(time)
     pitch = sph_dist(ra, dec, sun_ra, sun_dec)
 
     return pitch
-
-
-
-def man_pitch( att1, att2, tstart, pref_step=300.0 ):
-    """ 
-    Calculate pitch during a maneuver
-
-    :param att1:  initial attitude (Quat, 3 element RA,Dec,Roll, or 4 element quaternion) 
-    :param att2:  final attitude (Quat, 3 element RA,Dec,Roll, or 4 element quaternion) 
-    :param tstart: maneuver start time (DateTime compatible).  (not optional as required for sun position)  
-    :param pref_step: preferred time separation of returned attitudes (seconds)
-    
-    :rtype: numpy recarray  [ 'time', 'q1', 'q2', 'q3', 'q4', pitch]
-    """
-    maneuver_duration = Chandra.Maneuver.duration( att1, att2)
-
-    # round up the approximate number of preferred length chunks
-    n_chunks = math.ceil( maneuver_duration / float(pref_step) )
-    # and get a reasonable value for equal steps
-    step_secs = round( maneuver_duration / float(n_chunks) )
-    
-    attitudes = Chandra.Maneuver.attitudes(att1, att2, step=step_secs, tstart=tstart)
-    
-    pitchlist = []
-    for att in attitudes:
-        quat = Quat(att[1:])
-        time = att['time']
-        pitchlist.append({'time' : time, 
-                          'q1' : quat.q[0], 
-                          'q2' : quat.q[1], 
-                          'q3' : quat.q[2], 
-                          'q4' : quat.q[3], 
-                          'pitch' : pitch( quat, time )})
-        
-    pitches = np.rec.fromrecords( pitchlist, names= [ 'time', 'q1', 'q2', 'q3', 'q4', 'pitch'])
-    return pitches
-
 
