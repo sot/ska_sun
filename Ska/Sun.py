@@ -103,13 +103,18 @@ def sph_dist(a1, d1, a2, d2):
 
     :rtype: spherical distance (deg)
     """
-    if ((a1==a2) and (d1==d2)):
+    if a1==a2 and d1==d2:
         return 0.0
     a1 = radians(a1)
     d1 = radians(d1)
     a2 = radians(a2)
     d2 = radians(d2)
-    return degrees(acos(cos(d1)*cos(d2) * cos((a1-a2)) + sin(d1)*sin(d2)))
+    val = cos(d1) * cos(d2) * cos(a1-a2) + sin(d1) * sin(d2)
+    if val > 1.0:
+        val = 1.0
+    elif val < -1.0:
+        val = -1.0
+    return degrees(acos(val))
 
 def pitch(ra, dec, time):
     """Calculate sun pitch angle for the given spacecraft attitude ``ra``,
