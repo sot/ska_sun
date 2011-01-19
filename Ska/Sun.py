@@ -2,8 +2,11 @@
 Utility for calculating sun position and pitch angle.
 """
 
+import Quaternion
 from Chandra.Time import DateTime
 from math import cos, sin, acos, atan2, asin, pi, radians, degrees, ceil
+import numpy as np
+import Ska.quatutil
 
 def position(time):
     """
@@ -94,7 +97,8 @@ def position(time):
 
 def sph_dist(a1, d1, a2, d2):
     """Calculate spherical distance between two sky positions.  Not highly
-    accurate for very small angles.
+    accurate for very small angles.  This function is deprecated, use
+    Ska.astro.sph_dist() instead.
 
     :param a1: RA position 1 (deg)
     :param d1: dec position 1 (deg)
@@ -128,10 +132,42 @@ def pitch(ra, dec, time):
     :param ra: right ascension
     :param dec: declination
     :param time: time (any Chandra.Time format)
-    :rtype: sun pitch angle (deg)
+
+    :returns: sun pitch angle (deg)
     """
     sun_ra, sun_dec = position(time)
     pitch = sph_dist(ra, dec, sun_ra, sun_dec)
 
     return pitch
 
+def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None):
+    """Calculate nominal roll angle for the given spacecraft attitude ``ra``,
+    ``dec`` at ``time``.  Optionally one can provide explicit values of
+    ``sun_ra`` and ``sun_dec`` instead of ``time``.
+
+    Example::
+    
+      >>> Ska.Sun.nominal_roll(205.3105, -14.6925, time='2011:019:20:51:13')
+      68.830209134280665    # vs. 68.80 for obsid 12393 in JAN1711A
+
+    :param ra: right ascension
+    :param dec: declination
+    :param time: time (any Chandra.Time format) [optional]
+    :param sun_ra: Sun right ascension (instead of ``time``)
+    :param sun_dec: Sun declination (instead of ``time``)
+
+    :returns: nominal roll angle (deg)
+
+    """
+    if time is not None:
+        sun_ra, sun_dec = position(time)
+    sun_eci = Ska.quatutil.radec2eci(sun_ra, sun_dec)
+    body_x = Ska.quatutil.radec2eci(ra, dec)
+    if np.sum((sun_eci - body_x)**2) < 1e-10:
+        raise ValueError('No nominal roll for ra, dec == sun_ra, sun_dec')
+    body_y = np.cross(body_x, sun_eci)
+    body_y = body_y / np.sqrt(np.sum(body_y**2))
+    body_z = np.cross(body_x, body_y)
+    body_z = body_z / np.sqrt(np.sum(body_z**2))  # shouldn't be needed but do it anyway
+    q_att = Quaternion.Quat(np.array([body_x, body_y, body_z]).transpose())
+    return q_att.roll
