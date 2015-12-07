@@ -8,7 +8,7 @@ from math import cos, sin, acos, atan2, asin, pi, radians, degrees, ceil
 import numpy as np
 import Ska.quatutil
 
-__version__ = '0.4.1'
+__version__ = '0.5'
 
 def position(time):
     """
@@ -173,3 +173,35 @@ def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None):
     body_z = body_z / np.sqrt(np.sum(body_z**2))  # shouldn't be needed but do it anyway
     q_att = Quaternion.Quat(np.array([body_x, body_y, body_z]).transpose())
     return q_att.roll
+
+
+def off_nominal_roll(att, time):
+    """
+    Calculate off-nominal roll angle for the given spacecraft attitude ``att``, at
+    ``time``.  Off-nominal roll is defined as roll - nominal roll.
+
+    Example::
+
+      >>> att = (198.392135, 36.594359, 33.983322)  # RA, Dec, Roll of obsid 16354
+      >>> Ska.Sun.off_nominal_roll(att, '2015:335:00:00:00')
+      -12.22401097980562
+
+    :param att: any Quat() value (e.g. [ra, dec, roll] or [q1, q2, q3, q4])
+    :param time: any DateTime value
+
+    :returns: off nominal roll angle (deg)
+    """
+    from Quaternion import Quat
+
+    q = Quat(att)
+    roll = q.roll
+
+    nom_roll = nominal_roll(q.ra, q.dec, time)
+    off_nom_roll = roll - nom_roll
+
+    if off_nom_roll < -180:
+        off_nom_roll += 360
+    elif off_nom_roll >= 180:
+        off_nom_roll -= 360
+
+    return off_nom_roll
