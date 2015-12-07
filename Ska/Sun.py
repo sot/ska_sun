@@ -8,6 +8,8 @@ from math import cos, sin, acos, atan2, asin, pi, radians, degrees, ceil
 import numpy as np
 import Ska.quatutil
 
+__version__ = '0.4.1'
+
 def position(time):
     """
     Calculate the sun position at the given ``time``.
