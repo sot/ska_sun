@@ -8,7 +8,7 @@ from math import cos, sin, acos, atan2, asin, pi, radians, degrees, ceil
 import numpy as np
 import Ska.quatutil
 
-__version__ = '0.5'
+__version__ = '3.5'
 
 def position(time):
     """
