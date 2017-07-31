@@ -1,7 +1,7 @@
 """
 Utility for calculating sun position and pitch angle.
 """
-
+from astropy.table import Table
 import Quaternion
 from Chandra.Time import DateTime
 from math import cos, sin, acos, atan2, asin, pi, radians, degrees, ceil
@@ -9,6 +9,51 @@ import numpy as np
 import Ska.quatutil
 
 __version__ = '3.5'
+
+# This is basically the SPM content of characteristics_general.  If the
+# flight version of the table is modified, this local copy may need updating.
+# Note that the version in characteristics basicaly specifies each "line segment"
+# with two rows of the table, allowing possibility for non-zero slope.  All of the
+# segments are flat, however, so this local copy does not bother with the duplication.
+# This ROLL_TABLE does not have all padding needed to provide 100% valid results
+# for planning purposes.
+ROLL_TABLE = Table.read(
+"""
+pitch   rolldev
+------- -------
+46      0
+46.2    1.269
+46.4    2.052
+46.6    2.635
+46.8    3.111
+47      3.517
+47.2    3.942
+47.5    4.501
+48      5.192
+48.5    5.771
+49      6.268
+49.5    6.726
+50      7.142
+55      10.043
+60      11.753
+65      12.894
+70      13.659
+75      14.182
+80      14.523
+85      19.899
+137.08  7.334
+140     7.775
+145     8.697
+150     9.979
+153     11.021
+157     12.785
+160     14.628
+163     17.153
+166     19.999
+170     19.999
+180     19.999
+""", format='ascii')
+
 
 def position(time):
     """
@@ -205,3 +250,29 @@ def off_nominal_roll(att, time):
         off_nom_roll -= 360
 
     return off_nom_roll
+
+
+def allowed_rolldev(pitch):
+    """
+    Determine the maximum allowed deviation from nominal roll, in degrees.
+
+    :param pitch: spacecraft pitch in degrees (can be from Ska.Sun.pitch)
+    :returns: maximum roll deviation / difference from nominal roll
+    """
+    idx = np.searchsorted(ROLL_TABLE['pitch'], pitch, side='right')
+    return ROLL_TABLE['rolldev'][idx - 1]
+
+
+def allowed_rolldev_for_att(ra, dec, date):
+    """
+    Determine the maximum allowed deviation from nominal roll, in degrees.
+
+    :param pitch: spacecraft pitch in degrees (can be from Ska.Sun.pitch)
+    :param ra: right ascension
+    :param dec: declination
+    :param date: Chandra.Time compatible datetime
+    :returns: maximum roll deviation / difference from nominal roll
+    """
+    att_pitch = pitch(ra, dec, time=date)
+    return allowed_rolldev(att_pitch)
+
