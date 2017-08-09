@@ -259,6 +259,9 @@ def allowed_rolldev(pitch):
     :param pitch: spacecraft pitch in degrees (can be from Ska.Sun.pitch)
     :returns: maximum roll deviation / difference from nominal roll
     """
+    if (pitch < ROLL_TABLE['pitch'][0]) or (pitch > ROLL_TABLE['pitch'][-1]):
+        raise ValueError(
+            "Pitch of {} deg is not allowed and has no defined roll deviation range".format(pitch))
     idx = np.searchsorted(ROLL_TABLE['pitch'], pitch, side='right')
     return ROLL_TABLE['rolldev'][idx - 1]
 
