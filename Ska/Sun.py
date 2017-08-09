@@ -12,10 +12,10 @@ __version__ = '3.5'
 
 # This is basically the SPM content of characteristics_general.  If the
 # flight version of the table is modified, this local copy may need updating.
-# Note that the version in characteristics basicaly specifies each "line segment"
-# with two rows of the table, allowing possibility for non-zero slope.  All of the
-# segments are flat, however, so this local copy does not bother with the duplication.
-# This ROLL_TABLE does not have all padding needed to provide 100% valid results
+# Note that the version in characteristics basically specifies each "line segment"
+# with two rows of the table, allowing the possibility for non-zero slope.  All of the
+# segments are currently flat, however, so this local copy does not bother with the duplication.
+# This ROLL_TABLE also does not have all padding needed to provide 100% valid results
 # for planning purposes.
 ROLL_TABLE = Table.read(
 """
