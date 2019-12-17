@@ -8,8 +8,9 @@ from Chandra.Time import DateTime
 from math import cos, sin, acos, atan2, asin, pi, radians, degrees, ceil
 import numpy as np
 import Ska.quatutil
+import ska_helpers
 
-__version__ = '3.5'
+__version__ = ska_helpers.get_version('Ska.Sun')
 
 
 # The position() method is a modification of
