@@ -10,7 +10,7 @@ import numpy as np
 import Ska.quatutil
 import ska_helpers
 
-__version__ = ska_helpers.get_version('Ska.Sun')
+__version__ = ska_helpers.get_version(__package__)
 
 
 # The position() method is a modification of
