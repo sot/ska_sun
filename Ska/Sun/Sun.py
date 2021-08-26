@@ -129,9 +129,10 @@ def position(time):
     return ra/dtor, dec/dtor
 
 def sph_dist(a1, d1, a2, d2):
-    """Calculate spherical distance between two sky positions.  Not highly
-    accurate for very small angles.  This function is deprecated, use
-    Ska.astro.sph_dist() instead.
+    """Calculate spherical distance between two sky positions.
+
+    Not highly accurate for very small angles.  This function is deprecated, use
+    agasc.sphere_dist() instead.
 
     :param a1: RA position 1 (deg)
     :param d1: dec position 1 (deg)
