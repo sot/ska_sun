@@ -9,7 +9,6 @@ from Chandra.Time import DateTime
 from math import cos, sin, acos, atan2, asin, pi, radians, degrees
 import numpy as np
 import Ska.quatutil
-import ska_helpers
 
 
 # The position() method is a modification of
@@ -285,18 +284,19 @@ def apply_sun_pitch_yaw(att, pitch=0, yaw=0,
                         time=None, sun_ra=None, sun_dec=None):
     """Apply pitch(es) and yaw(s) about Sun line to an attitude.
 
-    Parameters
-    ----------
-    att : Quaternion-like
+    :param att: Quaternion-like
         Attitude(s) to be rotated.
-    pitch : float, ndarray
+    :param pitch: float, ndarray
         Sun pitch offsets (deg)
-    yaw : float, ndarray
+    :param yaw: float, ndarray
         Sun yaw offsets (deg)
     :param sun_ra: float, optional
         RA of sun.  If not given, use estimated sun RA at ``time``.
     :param sun_dec: float, optional
         Dec of sun.  If not given, use estimated sun dec at ``time``.
+
+    :returns: Quat
+        Modified attitude(s)
 
     """
     if not isinstance(att, Quat):
