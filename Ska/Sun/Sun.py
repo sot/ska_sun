@@ -11,8 +11,6 @@ import numpy as np
 import Ska.quatutil
 import ska_helpers
 
-__version__ = ska_helpers.get_version(__name__)
-
 
 # The position() method is a modification of
 # http://idlastro.gsfc.nasa.gov/ftp/pro/astro/sunpos.pro
@@ -248,7 +246,7 @@ def get_sun_pitch_yaw(ra, dec, time=None, sun_ra=None, sun_dec=None):
     :param dec: float, ndarray
         Dec(s)
     :param time: date-like, optional
-        Date(s) of observation.  If not given, use ``sun_ra`` and ``sun_dec``
+        Date of observation.  If not given, use ``sun_ra`` and ``sun_dec``
         if provided or else use current date.
     :param sun_ra: float, optional
         RA of sun.  If not given, use estimated sun RA at ``date``.
@@ -260,26 +258,25 @@ def get_sun_pitch_yaw(ra, dec, time=None, sun_ra=None, sun_dec=None):
     """
     # If not provided calculate sun RA and Dec using a low-accuracy ephemeris
     if sun_ra is None or sun_dec is None:
-        sun_ra, sun_dec = Ska.Sun.position(time)
+        sun_ra, sun_dec = position(time)
 
     # Compute attitude vector in ECI
     att_eci = radec_to_eci(ra, dec)
 
-    sun_ra, sun_dec, sun_roll = np.broadcast_arrays(sun_ra, sun_dec, 0)
-    sun_equatorial = np.stack([sun_ra, sun_dec, sun_roll], axis=-1)
-
     # Make a Sun frame defined by vector to the Sun assuming roll=0
-    sun_frame = Quat(equatorial=sun_equatorial)
-    # Sun frame inverse rotation matrix. Swapaxes is a generalized transpose
-    # allowing for leading dimensions.
-    sun_frame_rot = sun_frame.transform.swapaxes(-2, -1)
+    sun_frame = Quat([sun_ra, sun_dec, 0])
+    # Sun frame inverse rotation matrix.
+    sun_frame_rot = sun_frame.transform.T
 
     # Compute attitude vector in Sun frame.
     att_sun = np.einsum('...jk,...k->...j', sun_frame_rot, att_eci)
 
-    # Usual for pitch and yaw (?)
+    # Usual for pitch and yaw. The yaw is set to match ORviewer:
+    # get_sun_pitch_yaw(109, 55.3, time='2021:242') ~ (60, 30)
+    # get_sun_pitch_yaw(238.2, -58.9, time='2021:242') ~ (90, 210)
     pitch = np.arccos(att_sun[..., 0])
-    yaw = np.arctan2(att_sun[..., 1], att_sun[..., 2])
+    yaw = -np.arctan2(att_sun[..., 1], att_sun[..., 2])  # -pi <= yaw < pi
+    yaw = yaw % (2 * np.pi)  # 0 <= yaw < 2pi
 
     return np.rad2deg(pitch), np.rad2deg(yaw)
 
@@ -307,7 +304,7 @@ def apply_sun_pitch_yaw(att, pitch=0, yaw=0,
 
     # If not provided calculate sun RA and Dec using a low-accuracy ephemeris
     if sun_ra is None or sun_dec is None:
-        sun_ra, sun_dec = Ska.Sun.position(time)
+        sun_ra, sun_dec = position(time)
 
     # Compute Sun and attitude vectors in ECI
     eci_sun = radec_to_eci(sun_ra, sun_dec)
