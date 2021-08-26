@@ -240,39 +240,41 @@ def off_nominal_roll(att, time):
     return off_nom_roll
 
 
-def get_sun_pitch_yaw(ra, dec, date=None, sun_ra=None, sun_dec=None):
-    """Get Sun pitch and yaw angles of attitudes.
+def get_sun_pitch_yaw(ra, dec, time=None, sun_ra=None, sun_dec=None):
+    """Get Sun pitch and yaw angles of Sky coordinate(s).
 
-    Parameters
-    ----------
     :param ra: float, ndarray
         RA(s)
     :param dec: float, ndarray
         Dec(s)
-    :param date: date-like, optional
-        Date of observation.  If not given, use ``sun_ra`` and ``sun_dec``
+    :param time: date-like, optional
+        Date(s) of observation.  If not given, use ``sun_ra`` and ``sun_dec``
         if provided or else use current date.
     :param sun_ra: float, optional
         RA of sun.  If not given, use estimated sun RA at ``date``.
     :param sun_dec: float, optional
         Dec of sun.  If not given, use estimated sun dec at ``date``.
-    """
-    # Coerce input to a single Quat (possibly N-d) with a more permissive init
-    # att = init_quat_from_attitude(att)
 
+    :returns:
+        2-tuple (pitch, yaw) in degrees.
+    """
     # If not provided calculate sun RA and Dec using a low-accuracy ephemeris
     if sun_ra is None or sun_dec is None:
-        sun_ra, sun_dec = Ska.Sun.position(date)
+        sun_ra, sun_dec = Ska.Sun.position(time)
 
     # Compute attitude vector in ECI
     att_eci = radec_to_eci(ra, dec)
 
-    # Make a Sun frame defined by vector to the Sun assuming roll=0
-    sun_frame = Quat([sun_ra, sun_dec, 0])
-    sun_frame_rot = sun_frame.transform.T  # Sun frame inverse rotation matrix
+    sun_ra, sun_dec, sun_roll = np.broadcast_arrays(sun_ra, sun_dec, 0)
+    sun_equatorial = np.stack([sun_ra, sun_dec, sun_roll], axis=-1)
 
-    # Compute attitude vector in Sun frame. See also:
-    # https://medium.com/ai-for-real/einsum-an-easy-intuitive-way-to-write-tensor-operation-9e12b8a80570
+    # Make a Sun frame defined by vector to the Sun assuming roll=0
+    sun_frame = Quat(equatorial=sun_equatorial)
+    # Sun frame inverse rotation matrix. Swapaxes is a generalized transpose
+    # allowing for leading dimensions.
+    sun_frame_rot = sun_frame.transform.swapaxes(-2, -1)
+
+    # Compute attitude vector in Sun frame.
     att_sun = np.einsum('...jk,...k->...j', sun_frame_rot, att_eci)
 
     # Usual for pitch and yaw (?)
@@ -283,20 +285,29 @@ def get_sun_pitch_yaw(ra, dec, date=None, sun_ra=None, sun_dec=None):
 
 
 def apply_sun_pitch_yaw(att, pitch=0, yaw=0,
-                        date=None, sun_ra=None, sun_dec=None):
+                        time=None, sun_ra=None, sun_dec=None):
     """Apply pitch(es) and yaw(s) about Sun line to an attitude.
 
     Parameters
     ----------
     att : Quaternion-like
-        Attitude
+        Attitude(s) to be rotated.
+    pitch : float, ndarray
+        Sun pitch offsets (deg)
+    yaw : float, ndarray
+        Sun yaw offsets (deg)
+    :param sun_ra: float, optional
+        RA of sun.  If not given, use estimated sun RA at ``time``.
+    :param sun_dec: float, optional
+        Dec of sun.  If not given, use estimated sun dec at ``time``.
+
     """
     if not isinstance(att, Quat):
         att = Quat(att)
 
     # If not provided calculate sun RA and Dec using a low-accuracy ephemeris
     if sun_ra is None or sun_dec is None:
-        sun_ra, sun_dec = Ska.Sun.position(date)
+        sun_ra, sun_dec = Ska.Sun.position(time)
 
     # Compute Sun and attitude vectors in ECI
     eci_sun = radec_to_eci(sun_ra, sun_dec)
