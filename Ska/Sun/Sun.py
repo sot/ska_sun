@@ -3,14 +3,12 @@
 Utility for calculating sun position and pitch angle.
 """
 
-import Quaternion
+from Quaternion import Quat
+from chandra_aca.transform import radec_to_eci
 from Chandra.Time import DateTime
-from math import cos, sin, acos, atan2, asin, pi, radians, degrees, ceil
+from math import cos, sin, acos, atan2, asin, pi, radians, degrees
 import numpy as np
 import Ska.quatutil
-import ska_helpers
-
-__version__ = ska_helpers.get_version(__name__)
 
 
 # The position() method is a modification of
@@ -50,7 +48,7 @@ def position(time):
     Code modified from http://idlastro.gsfc.nasa.gov/ftp/pro/astro/sunpos.pro
 
     Example::
-    
+
      >>> import Ska.Sun
      >>> Ska.Sun.position('2008:002:00:01:02')
      (281.90344855695275, -22.9892737322084)
@@ -58,7 +56,7 @@ def position(time):
     :param time: Input time (Chandra.Time compatible format)
     :rtype: RA, Dec in decimal degrees (J2000).
     """
-    
+
     t = (DateTime(time).jd - 2415020)/(36525.0)
 
     dtor = pi/180
@@ -70,7 +68,7 @@ def position(time):
     me =  358.475844 + (35999.049750*t) % 360.0
     ellcor = (6910.1 - (17.2*t))*sin(me*dtor) + 72.3*sin(2.0*me*dtor)
     l = l + ellcor
-    
+
     # allow for the Venus perturbations using the mean anomaly of Venus MV
     mv = 212.603219 + (58517.803875*t) % 360.0
     vencorr = 4.8 * cos((299.1017 + mv - me)*dtor) + \
@@ -79,7 +77,7 @@ def position(time):
         1.6 * cos((345.2533 +  3.0 * mv  -  4.0 * me )*dtor) + \
         1.0 * cos((318.15   +  3.0 * mv  -  5.0 * me )*dtor)
     l = l + vencorr
-    
+
     #  Allow for the Mars perturbations using the mean anomaly of Mars MM
     mm = 319.529425  +  ( 19139.858500 * t) % 360.0
     marscorr = 2.0 * cos((343.8883 -  2.0 * mm  +  2.0 * me)*dtor ) + \
@@ -96,21 +94,21 @@ def position(time):
 
     # Allow for the Moons perturbations using the mean elongation of the Moon
     # from the Sun D
-    d = 350.7376814  + ( 445267.11422 * t) % 360.0 
+    d = 350.7376814  + ( 445267.11422 * t) % 360.0
     mooncorr  = 6.5 * sin(d*dtor);
     l = l + mooncorr;
-    
+
     # Allow for long period terms
     longterm  = 6.4 * sin(( 231.19  +  20.20 * t )*dtor)
     l  =    l + longterm
-    l  =  ( l + 2592000.0) % 1296000.0 
+    l  =  ( l + 2592000.0) % 1296000.0
     longmed = l/3600.0
-    
+
     # Allow for Aberration
     l  =  l - 20.5;
-    
+
     # Allow for Nutation using the longitude of the Moons mean node OMEGA
-    omega = 259.183275 - ( 1934.142008 * t ) % 360.0 
+    omega = 259.183275 - ( 1934.142008 * t ) % 360.0
     l  =  l - 17.2 * sin(omega*dtor)
 
     # Form the True Obliquity
@@ -119,7 +117,7 @@ def position(time):
     # Form Right Ascension and Declination
     l = l/3600.0;
     ra  = atan2( sin(l*dtor) * cos(oblt*dtor) , cos(l*dtor) );
-    
+
     while ((ra < 0) or ( ra > (2*pi))):
         if (ra < 0):
             ra += (2*pi)
@@ -127,13 +125,14 @@ def position(time):
             ra -= (2*pi)
 
     dec = asin(sin(l*dtor) * sin(oblt*dtor));
-            
-    return ra/dtor, dec/dtor 
+
+    return ra/dtor, dec/dtor
 
 def sph_dist(a1, d1, a2, d2):
-    """Calculate spherical distance between two sky positions.  Not highly
-    accurate for very small angles.  This function is deprecated, use
-    Ska.astro.sph_dist() instead.
+    """Calculate spherical distance between two sky positions.
+
+    Not highly accurate for very small angles.  This function is deprecated, use
+    agasc.sphere_dist() instead.
 
     :param a1: RA position 1 (deg)
     :param d1: dec position 1 (deg)
@@ -181,7 +180,7 @@ def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None):
     ``sun_ra`` and ``sun_dec`` instead of ``time``.
 
     Example::
-    
+
       >>> Ska.Sun.nominal_roll(205.3105, -14.6925, time='2011:019:20:51:13')
       68.830209134280665    # vs. 68.80 for obsid 12393 in JAN1711A
 
@@ -204,7 +203,7 @@ def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None):
     body_y = body_y / np.sqrt(np.sum(body_y**2))
     body_z = np.cross(body_x, body_y)
     body_z = body_z / np.sqrt(np.sum(body_z**2))  # shouldn't be needed but do it anyway
-    q_att = Quaternion.Quat(np.array([body_x, body_y, body_z]).transpose())
+    q_att = Quat(np.array([body_x, body_y, body_z]).transpose())
     return q_att.roll
 
 
@@ -224,7 +223,6 @@ def off_nominal_roll(att, time):
 
     :returns: off nominal roll angle (deg)
     """
-    from Quaternion import Quat
 
     q = Quat(att)
     roll = q.roll
@@ -238,3 +236,104 @@ def off_nominal_roll(att, time):
         off_nom_roll -= 360
 
     return off_nom_roll
+
+
+def get_sun_pitch_yaw(ra, dec, time=None, sun_ra=None, sun_dec=None):
+    """Get Sun pitch and yaw angles of Sky coordinate(s).
+
+    :param ra: float, ndarray
+        RA(s)
+    :param dec: float, ndarray
+        Dec(s)
+    :param time: date-like, optional
+        Date of observation.  If not given, use ``sun_ra`` and ``sun_dec``
+        if provided or else use current date.
+    :param sun_ra: float, optional
+        RA of sun.  If not given, use estimated sun RA at ``date``.
+    :param sun_dec: float, optional
+        Dec of sun.  If not given, use estimated sun dec at ``date``.
+
+    :returns:
+        2-tuple (pitch, yaw) in degrees.
+    """
+    # If not provided calculate sun RA and Dec using a low-accuracy ephemeris
+    if sun_ra is None or sun_dec is None:
+        sun_ra, sun_dec = position(time)
+
+    # Compute attitude vector in ECI
+    att_eci = radec_to_eci(ra, dec)
+
+    # Make a Sun frame defined by vector to the Sun assuming roll=0
+    sun_frame = Quat([sun_ra, sun_dec, 0])
+    # Sun frame inverse rotation matrix.
+    sun_frame_rot = sun_frame.transform.T
+
+    # Compute attitude vector in Sun frame.
+    att_sun = np.einsum('...jk,...k->...j', sun_frame_rot, att_eci)
+
+    # Usual for pitch and yaw. The yaw is set to match ORviewer:
+    # get_sun_pitch_yaw(109, 55.3, time='2021:242') ~ (60, 30)
+    # get_sun_pitch_yaw(238.2, -58.9, time='2021:242') ~ (90, 210)
+    pitch = np.arccos(att_sun[..., 0])
+    yaw = -np.arctan2(att_sun[..., 1], att_sun[..., 2])  # -pi <= yaw < pi
+    yaw = yaw % (2 * np.pi)  # 0 <= yaw < 2pi
+
+    return np.rad2deg(pitch), np.rad2deg(yaw)
+
+
+def apply_sun_pitch_yaw(att, pitch=0, yaw=0,
+                        time=None, sun_ra=None, sun_dec=None):
+    """Apply pitch(es) and yaw(s) about Sun line to an attitude.
+
+    :param att: Quaternion-like
+        Attitude(s) to be rotated.
+    :param pitch: float, ndarray
+        Sun pitch offsets (deg)
+    :param yaw: float, ndarray
+        Sun yaw offsets (deg)
+    :param sun_ra: float, optional
+        RA of sun.  If not given, use estimated sun RA at ``time``.
+    :param sun_dec: float, optional
+        Dec of sun.  If not given, use estimated sun dec at ``time``.
+
+    :returns: Quat
+        Modified attitude(s)
+
+    """
+    if not isinstance(att, Quat):
+        att = Quat(att)
+
+    # If not provided calculate sun RA and Dec using a low-accuracy ephemeris
+    if sun_ra is None or sun_dec is None:
+        sun_ra, sun_dec = position(time)
+
+    # Compute Sun and attitude vectors in ECI
+    eci_sun = radec_to_eci(sun_ra, sun_dec)
+    eci_att = radec_to_eci(att.ra, att.dec)
+
+    # Rotation vector for apply pitch about Sun line
+    pitch_rot_vec = np.cross(eci_sun, eci_att)
+    pitch_rot_vec = pitch_rot_vec / np.linalg.norm(pitch_rot_vec)
+
+    # Broadcast input pitch and yaw to a common shape
+    pitches, yaws = np.broadcast_arrays(pitch, yaw)
+    out_shape = pitches.shape
+    # Get pitches and yaws as 1-d iterables
+    pitches = np.atleast_1d(pitches).ravel()
+    yaws = np.atleast_1d(yaws).ravel()
+
+    qs = []  # Output quaternions as a list of 4-element ndarrays
+    for pitch, yaw in zip(pitches, yaws):
+        att_out = att
+        if pitch != 0:
+            # Pitch rotation is in the plane defined by attitude vector and the
+            # body-to-sun vector.
+            att_out = att_out.rotate_about_vec(pitch_rot_vec, pitch)
+        if yaw != 0:
+            # Yaw rotation is about the body-to-sun vector.
+            att_out = att_out.rotate_about_vec(eci_sun, yaw)
+        qs.append(att_out.q)
+
+    # Reshape into correct output shape and return corresponding quaternion
+    qs = np.array(qs).reshape(out_shape + (4,))
+    return Quat(q=qs)
