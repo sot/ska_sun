@@ -2,8 +2,8 @@
 
 import numpy as np
 from Quaternion import Quat
-from .Sun import (apply_sun_pitch_yaw, get_sun_pitch_yaw, nominal_roll,
-                  off_nominal_roll, position, pitch as sun_pitch)
+from ..Sun import (apply_sun_pitch_yaw, get_sun_pitch_yaw, nominal_roll,
+                   off_nominal_roll, position, pitch as sun_pitch)
 
 
 def test_position():
