@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ska.Sun &#8212; Ska.Sun 3.6.0 documentation</title>
+    <title>Ska.Sun &#8212; Ska.Sun 3.7.0 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -47,7 +47,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="#">Ska.Sun 3.6.0 documentation</a>
+	<a href="#">Ska.Sun 3.7.0 documentation</a>
 	 &#187;
       </li>
       
@@ -61,105 +61,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-Ska.Sun">
-<span id="ska-sun"></span><h1><a class="reference internal" href="#module-Ska.Sun" title="Ska.Sun"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Ska.Sun</span></code></a><a class="headerlink" href="#module-Ska.Sun" title="Permalink to this headline">¶</a></h1>
-<p>Utility for calculating sun position and pitch angle.</p>
-<div class="section" id="functions">
-<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt id="Ska.Sun.position">
-<code class="sig-prename descclassname">Ska.Sun.</code><code class="sig-name descname">position</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">time</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/Sun.html#position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.Sun.position" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the sun position at the given <code class="docutils literal notranslate"><span class="pre">time</span></code>.</p>
-<p>Code modified from <a class="reference external" href="http://idlastro.gsfc.nasa.gov/ftp/pro/astro/sunpos.pro">http://idlastro.gsfc.nasa.gov/ftp/pro/astro/sunpos.pro</a></p>
-<p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">Ska.Sun</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">Ska</span><span class="o">.</span><span class="n">Sun</span><span class="o">.</span><span class="n">position</span><span class="p">(</span><span class="s1">&#39;2008:002:00:01:02&#39;</span><span class="p">)</span>
-<span class="go">(281.90344855695275, -22.9892737322084)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>time</strong> – Input time (Chandra.Time compatible format)</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>RA, Dec in decimal degrees (J2000)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="Ska.Sun.pitch">
-<code class="sig-prename descclassname">Ska.Sun.</code><code class="sig-name descname">pitch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ra</span></em>, <em class="sig-param"><span class="n">dec</span></em>, <em class="sig-param"><span class="n">time</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/Sun.html#pitch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.Sun.pitch" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate sun pitch angle for the given spacecraft attitude <code class="docutils literal notranslate"><span class="pre">ra</span></code>,
-<code class="docutils literal notranslate"><span class="pre">dec</span></code> at <code class="docutils literal notranslate"><span class="pre">time</span></code>.</p>
-<p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Ska</span><span class="o">.</span><span class="n">Sun</span><span class="o">.</span><span class="n">pitch</span><span class="p">(</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">20.</span><span class="p">,</span> <span class="s1">&#39;2009:001:00:01:02&#39;</span><span class="p">)</span>
-<span class="go">96.256434327840864</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ra</strong> – right ascension</p></li>
-<li><p><strong>dec</strong> – declination</p></li>
-<li><p><strong>time</strong> – time (any Chandra.Time format)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>sun pitch angle (deg)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="Ska.Sun.nominal_roll">
-<code class="sig-prename descclassname">Ska.Sun.</code><code class="sig-name descname">nominal_roll</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ra</span></em>, <em class="sig-param"><span class="n">dec</span></em>, <em class="sig-param"><span class="n">time</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sun_ra</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">sun_dec</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/Sun.html#nominal_roll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.Sun.nominal_roll" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate nominal roll angle for the given spacecraft attitude <code class="docutils literal notranslate"><span class="pre">ra</span></code>,
-<code class="docutils literal notranslate"><span class="pre">dec</span></code> at <code class="docutils literal notranslate"><span class="pre">time</span></code>.  Optionally one can provide explicit values of
-<code class="docutils literal notranslate"><span class="pre">sun_ra</span></code> and <code class="docutils literal notranslate"><span class="pre">sun_dec</span></code> instead of <code class="docutils literal notranslate"><span class="pre">time</span></code>.</p>
-<p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Ska</span><span class="o">.</span><span class="n">Sun</span><span class="o">.</span><span class="n">nominal_roll</span><span class="p">(</span><span class="mf">205.3105</span><span class="p">,</span> <span class="o">-</span><span class="mf">14.6925</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="s1">&#39;2011:019:20:51:13&#39;</span><span class="p">)</span>
-<span class="go">68.830209134280665    # vs. 68.80 for obsid 12393 in JAN1711A</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ra</strong> – right ascension</p></li>
-<li><p><strong>dec</strong> – declination</p></li>
-<li><p><strong>time</strong> – time (any Chandra.Time format) [optional]</p></li>
-<li><p><strong>sun_ra</strong> – Sun right ascension (instead of <code class="docutils literal notranslate"><span class="pre">time</span></code>)</p></li>
-<li><p><strong>sun_dec</strong> – Sun declination (instead of <code class="docutils literal notranslate"><span class="pre">time</span></code>)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>nominal roll angle (deg)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="Ska.Sun.sph_dist">
-<code class="sig-prename descclassname">Ska.Sun.</code><code class="sig-name descname">sph_dist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a1</span></em>, <em class="sig-param"><span class="n">d1</span></em>, <em class="sig-param"><span class="n">a2</span></em>, <em class="sig-param"><span class="n">d2</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/Sun.html#sph_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.Sun.sph_dist" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate spherical distance between two sky positions.  Not highly
-accurate for very small angles.  This function is deprecated, use
-Ska.astro.sph_dist() instead.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>a1</strong> – RA position 1 (deg)</p></li>
-<li><p><strong>d1</strong> – dec position 1 (deg)</p></li>
-<li><p><strong>a2</strong> – RA position 2 (deg)</p></li>
-<li><p><strong>d2</strong> – dec position 2 (deg)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>spherical distance (deg)</p>
-</dd>
-</dl>
-</dd></dl>
-
-</div>
+  <div class="section" id="ska-sun">
+<h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">Ska.Sun</span></code><a class="headerlink" href="#ska-sun" title="Permalink to this headline">¶</a></h1>
 </div>
 
 
@@ -170,10 +73,7 @@ Ska.astro.sph_dist() instead.</p>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
-<li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Ska.Sun</span></code></a><ul>
-<li><a class="reference internal" href="#functions">Functions</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Ska.Sun</span></code></a></li>
 </ul>
 
 
