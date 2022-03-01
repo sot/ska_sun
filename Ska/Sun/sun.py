@@ -2,13 +2,44 @@
 """
 Utility for calculating sun position and pitch angle.
 """
+from pathlib import Path
+import numpy as np
+from math import cos, sin, acos, atan2, asin, pi, radians, degrees
+from astropy.table import Table
 
+from ska_helpers.utils import LazyVal
 from Quaternion import Quat
 from chandra_aca.transform import radec_to_eci
 from Chandra.Time import DateTime
-from math import cos, sin, acos, atan2, asin, pi, radians, degrees
-import numpy as np
 import Ska.quatutil
+
+
+def load_roll_table():
+    dat = Table.read(Path(__file__).parent / 'data' / 'pitch_roll.fits.gz')
+
+    # Add a terminating row to the data such that for pitch at or greater
+    # than 180 the allowed roll deviation is defined as 0.
+    dat.add_row({'pitch': 180, 'rolldev': 0})
+    return dat
+
+
+ROLL_TABLE = LazyVal(load_roll_table)
+
+
+def allowed_rolldev(pitch):
+    """Get allowed roll deviation (off-nominal roll) for the given ``pitch``.
+    :param pitch: Sun pitch angle (deg)
+    :returns: Roll deviation (deg)
+    """
+    idx1 = np.searchsorted(ROLL_TABLE.val['pitch'], pitch, side='right')
+    idx0 = idx1 - 1
+    idx_max = len(ROLL_TABLE.val) - 1
+    idx0 = np.clip(idx0, 0, idx_max)
+    idx1 = np.clip(idx1, 0, idx_max)
+    val0 = ROLL_TABLE.val['rolldev'][idx0]
+    val1 = ROLL_TABLE.val['rolldev'][idx1]
+    out = np.minimum(val0, val1)  # works even for a vector input for `pitch`
+    return out
 
 
 # The position() method is a modification of
