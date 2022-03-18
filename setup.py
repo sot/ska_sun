@@ -14,7 +14,7 @@ setup(name='Ska.Sun',
       setup_requires=['setuptools_scm', 'setuptools_scm_git_archive'],
       zip_safe=False,
       packages=['Ska', 'Ska.Sun', 'Ska.Sun.tests'],
-      package_data={},
+      package_data={'Ska.Sun': ['data/*fits.gz']},
       tests_require=['pytest'],
       cmdclass=cmdclass,
       )

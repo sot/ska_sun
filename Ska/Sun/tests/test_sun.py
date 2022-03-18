@@ -3,7 +3,31 @@
 import numpy as np
 from Quaternion import Quat
 from ..sun import (apply_sun_pitch_yaw, get_sun_pitch_yaw, nominal_roll,
-                   off_nominal_roll, position, pitch as sun_pitch)
+                   off_nominal_roll, position, allowed_rolldev,
+                   pitch as sun_pitch)
+
+
+def test_allowed_rolldev():
+
+    # Test array of pitchs and allowed roll dev
+    testarr = [[135, 13.979],
+               [138, 14.516],
+               [0, 0],
+               [40, 0],
+               [179.9, 18.748772],
+               [179.997, 0],
+               [180, 0],
+               [181, 0],
+               [85.49229, 13.677669],
+               [85.52, 18.756727],
+               [124.99, 18.748772],
+               [125, 17.0]]
+    for pitch, rolldev in testarr:
+        assert np.isclose(allowed_rolldev(pitch), rolldev)
+
+    # Also test with pitch as vector
+    assert np.allclose(allowed_rolldev(np.array(testarr)[:, 0]),
+                       np.array(testarr)[:, 1])
 
 
 def test_position():
