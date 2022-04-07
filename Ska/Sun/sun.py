@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-Utility for calculating sun position and pitch angle.
+Utility for calculating sun position, pitch angle and values related to roll.
 """
 from pathlib import Path
 import numpy as np
