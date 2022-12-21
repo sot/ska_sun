@@ -8,7 +8,8 @@ import numba
 import numpy as np
 from astropy.table import Table
 from Chandra.Time import DateTime
-from chandra_aca.transform import radec_to_eci
+from chandra_aca.planets import get_planet_chandra, get_planet_eci
+from chandra_aca.transform import eci_to_radec, radec_to_eci
 from Quaternion import Quat
 from ska_helpers import chandra_models
 
@@ -25,6 +26,21 @@ __all__ = [
 ]
 
 CHANDRA_MODELS_PITCH_ROLL_FILE = "chandra_models/pitch_roll/pitch_roll_constraint.csv"
+
+from . import conf
+
+__all__ = [
+    "allowed_rolldev",
+    "position",
+    "position_fast",
+    "position_accurate",
+    "sph_dist",
+    "pitch",
+    "nominal_roll",
+    "off_nominal_roll",
+    "get_sun_pitch_yaw",
+    "apply_sun_pitch_yaw",
+]
 
 
 def _roll_table_read_func(filename):
@@ -111,11 +127,18 @@ def allowed_rolldev(pitch, roll_table=None):
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-def position(time):
+def position_fast(time):
     """
-    Calculate the sun position at the given ``time``.
+    Calculate the sun position at the given ``time`` using a fast approximation.
 
     Code modified from http://idlastro.gsfc.nasa.gov/ftp/pro/astro/sunpos.pro
+
+    This implementation is returns coordinates that are in error by as much as
+    0.3 deg. Use the ``position()`` function unless speed is critical.
+
+    This function is about 40x faster than the ``position()`` function (30 us for a
+    single time vs 1.2 ms). However, the ``position()`` function can be vectorized and
+    the speed difference is reduced.
 
     Example::
 
@@ -208,6 +231,61 @@ def position_at_jd(jd):
     dec = asin(sin(lon * dtor) * sin(oblt * dtor))
 
     return ra / dtor, dec / dtor
+
+
+def position_accurate(time, from_chandra=False):
+    """
+    Calculate the sun RA, Dec at the given ``time`` from Earth geocenter or Chandra.
+
+    By default the position is calculated from Earth geocenter.  If ``from_chandra=True``
+    the position is calculated from Chandra using the Chandra predictive ephemeris
+    via the cheta telemetry archive.
+
+    These methods rely on the DE432 ephemeris and functions in ``chandra_aca.planets``.
+    With ``from_chandra=True`` the position should be accurate to within a few arcsec.
+    With ``from_chandra=False`` the position is accurate to within about 0.05 deg.
+
+    Example::
+
+     >>> import ska_sun
+     >>> ska_sun.position_accurate('2008:002:00:01:02')
+     (281.7865848220755, -22.99607130644057)
+
+    :param time: Input time(s) (CxoTimeLike)
+    :param from_chandra: If True compute position from Chandra using ephemeris in cheta
+    :rtype: RA, Dec in decimal degrees (J2000).
+    """
+    func = get_planet_chandra if from_chandra else get_planet_eci
+    eci_sun = func("sun", time)
+    ra, dec = eci_to_radec(eci_sun)
+    return ra, dec
+
+
+def position(time, method=None, **kwargs):
+    """
+    Calculate the sun RA, Dec at the given ``time`` from Earth geocenter or Chandra.
+
+    Example::
+
+     >>> import ska_sun
+     >>> ska_sun.position('2008:002:00:01:02')
+     (281.7865848220755, -22.99607130644057)
+
+    :param time: Input time(s) (CxoTimeLike)
+    :param method: Method to use ("fast" | "accurate", default="fast")
+    :param **kwargs: Passed to position_<method>()
+    :rtype: RA, Dec in decimal degrees (J2000)
+    """
+    if method is None:
+        method = conf.sun_position_method_default
+
+    try:
+        position_func = globals()["position_" + method]
+    except KeyError:
+        raise ValueError(f"Invalid sun position method '{method}'") from None
+
+    ra, dec = position_func(time, **kwargs)
+    return ra, dec
 
 
 @numba.njit(cache=True)
