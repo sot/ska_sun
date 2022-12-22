@@ -80,8 +80,8 @@ def position(time):
 
     Example::
 
-     >>> import Ska.Sun
-     >>> Ska.Sun.position('2008:002:00:01:02')
+     >>> import ska_sun
+     >>> ska_sun.position('2008:002:00:01:02')
      (281.90344855695275, -22.9892737322084)
 
     :param time: Input time (Chandra.Time compatible format)
@@ -192,7 +192,7 @@ def pitch(ra, dec, time):
 
     Example::
 
-     >>> Ska.Sun.pitch(10., 20., '2009:001:00:01:02')
+     >>> ska_sun.pitch(10., 20., '2009:001:00:01:02')
      96.256434327840864
 
     :param ra: right ascension
@@ -214,7 +214,7 @@ def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None):
 
     Example::
 
-      >>> Ska.Sun.nominal_roll(205.3105, -14.6925, time='2011:019:20:51:13')
+      >>> ska_sun.nominal_roll(205.3105, -14.6925, time='2011:019:20:51:13')
       68.830209134280665    # vs. 68.80 for obsid 12393 in JAN1711A
 
     :param ra: right ascension
@@ -248,7 +248,7 @@ def off_nominal_roll(att, time):
     Example::
 
       >>> att = (198.392135, 36.594359, 33.983322)  # RA, Dec, Roll of obsid 16354
-      >>> Ska.Sun.off_nominal_roll(att, '2015:335:00:00:00')
+      >>> ska_sun.off_nominal_roll(att, '2015:335:00:00:00')
       -12.22401097980562
 
     :param att: any Quat() value (e.g. [ra, dec, roll] or [q1, q2, q3, q4])
