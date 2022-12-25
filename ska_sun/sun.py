@@ -102,25 +102,30 @@ def position(time):
 
     # allow for the Venus perturbations using the mean anomaly of Venus MV
     mv = 212.603219 + (58517.803875 * t) % 360.0
-    vencorr = 4.8 * cos((299.1017 + mv - me) * dtor) + \
-        5.5 * cos((148.3133 + 2.0 * mv - 2.0 * me) * dtor) + \
-        2.5 * cos((315.9433 + 2.0 * mv - 3.0 * me) * dtor) + \
-        1.6 * cos((345.2533 + 3.0 * mv - 4.0 * me) * dtor) + \
-        1.0 * cos((318.15 + 3.0 * mv - 5.0 * me) * dtor)
+    vencorr = (
+        4.8 * cos((299.1017 + mv - me) * dtor)
+        + 5.5 * cos((148.3133 + 2.0 * mv - 2.0 * me) * dtor)
+        + 2.5 * cos((315.9433 + 2.0 * mv - 3.0 * me) * dtor)
+        + 1.6 * cos((345.2533 + 3.0 * mv - 4.0 * me) * dtor)
+        + 1.0 * cos((318.15 + 3.0 * mv - 5.0 * me) * dtor)
+    )
     lon = lon + vencorr
 
     #  Allow for the Mars perturbations using the mean anomaly of Mars MM
     mm = 319.529425 + (19139.858500 * t) % 360.0
-    marscorr = 2.0 * cos((343.8883 - 2.0 * mm + 2.0 * me) * dtor) + \
-        1.8 * cos((200.4017 - 2.0 * mm + me) * dtor)
+    marscorr = 2.0 * cos((343.8883 - 2.0 * mm + 2.0 * me) * dtor) + 1.8 * cos(
+        (200.4017 - 2.0 * mm + me) * dtor
+    )
     lon = lon + marscorr
 
     # Allow for the Jupiter perturbations using the mean anomaly of Jupiter MJ
     mj = 225.328328 + (3034.6920239 * t) % 360.0
-    jupcorr = 7.2 * cos((179.5317 - mj + me) * dtor) + \
-        2.6 * cos((263.2167 - mj) * dtor) + \
-        2.7 * cos((87.1450 - 2.0 * mj + 2.0 * me) * dtor) + \
-        1.6 * cos((109.4933 - 2.0 * mj + me) * dtor)
+    jupcorr = (
+        7.2 * cos((179.5317 - mj + me) * dtor)
+        + 2.6 * cos((263.2167 - mj) * dtor)
+        + 2.7 * cos((87.1450 - 2.0 * mj + 2.0 * me) * dtor)
+        + 1.6 * cos((109.4933 - 2.0 * mj + me) * dtor)
+    )
     lon = lon + jupcorr
 
     # Allow for the Moons perturbations using the mean elongation of the Moon
@@ -148,11 +153,11 @@ def position(time):
     lon = lon / 3600.0
     ra = atan2(sin(lon * dtor) * cos(oblt * dtor), cos(lon * dtor))
 
-    while ((ra < 0) or (ra > (2 * pi))):
-        if (ra < 0):
-            ra += (2 * pi)
-        if (ra > (2 * pi)):
-            ra -= (2 * pi)
+    while (ra < 0) or (ra > (2 * pi)):
+        if ra < 0:
+            ra += 2 * pi
+        if ra > (2 * pi):
+            ra -= 2 * pi
 
     dec = asin(sin(lon * dtor) * sin(oblt * dtor))
 
@@ -230,12 +235,14 @@ def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None):
         sun_ra, sun_dec = position(time)
     sun_eci = Ska.quatutil.radec2eci(sun_ra, sun_dec)
     body_x = Ska.quatutil.radec2eci(ra, dec)
-    if np.sum((sun_eci - body_x)**2) < 1e-10:
+    if np.sum((sun_eci - body_x) ** 2) < 1e-10:
         raise ValueError('No nominal roll for ra, dec == sun_ra, sun_dec')
     body_y = np.cross(body_x, sun_eci)
     body_y = body_y / np.sqrt(np.sum(body_y**2))
     body_z = np.cross(body_x, body_y)
-    body_z = body_z / np.sqrt(np.sum(body_z**2))  # shouldn't be needed but do it anyway
+    body_z = body_z / np.sqrt(
+        np.sum(body_z**2)
+    )  # shouldn't be needed but do it anyway
     q_att = Quat(np.array([body_x, body_y, body_z]).transpose())
     return q_att.roll
 
@@ -314,8 +321,7 @@ def get_sun_pitch_yaw(ra, dec, time=None, sun_ra=None, sun_dec=None):
     return np.rad2deg(pitch), np.rad2deg(yaw)
 
 
-def apply_sun_pitch_yaw(att, pitch=0, yaw=0,
-                        time=None, sun_ra=None, sun_dec=None):
+def apply_sun_pitch_yaw(att, pitch=0, yaw=0, time=None, sun_ra=None, sun_dec=None):
     """Apply pitch(es) and yaw(s) about Sun line to an attitude.
 
     :param att: Quaternion-like
