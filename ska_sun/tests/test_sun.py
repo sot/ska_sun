@@ -41,21 +41,21 @@ def test_allowed_rolldev():
 
 
 def test_position():
-    ra, dec = position('2008:002:00:01:02')
+    ra, dec = position("2008:002:00:01:02")
     assert np.allclose((ra, dec), (281.903448, -22.989273))
 
 
 def test_nominal_roll():
-    roll = nominal_roll(205.3105, -14.6925, time='2011:019:20:51:13')
+    roll = nominal_roll(205.3105, -14.6925, time="2011:019:20:51:13")
     assert np.allclose(roll, 68.83020)  # vs. 68.80 for obsid 12393 in JAN1711A
 
 
 def test_off_nominal_roll_and_pitch():
     att = (198.392135, 36.594359, 33.983322)  # RA, Dec, Roll of obsid 16354
-    oroll = off_nominal_roll(att, '2015:335:00:00:00')  # NOT the 16354 time
+    oroll = off_nominal_roll(att, "2015:335:00:00:00")  # NOT the 16354 time
     assert np.isclose(oroll, -12.224010)
 
-    date = '2015:077:01:07:04'
+    date = "2015:077:01:07:04"
     pitch = sun_pitch(att[0], att[1], time=date)
     assert np.isclose(pitch, 139.5651)  # vs. 139.59 in SOT MP page
 
@@ -104,9 +104,9 @@ def test_get_sun_pitch_yaw():
 
     See slack discussion "ORviewer sun / anti-sun plots azimuthal Sun yaw angle"
     """
-    pitch, yaw = get_sun_pitch_yaw(109, 55.3, time='2021:242')
+    pitch, yaw = get_sun_pitch_yaw(109, 55.3, time="2021:242")
     assert np.allclose((pitch, yaw), (60.453385, 29.880125))
-    pitch, yaw = get_sun_pitch_yaw(238.2, -58.9, time='2021:242')
+    pitch, yaw = get_sun_pitch_yaw(238.2, -58.9, time="2021:242")
     assert np.allclose((pitch, yaw), (92.405603, 210.56582))
-    pitch, yaw = get_sun_pitch_yaw(338, -9.1, time='2021:242')
+    pitch, yaw = get_sun_pitch_yaw(338, -9.1, time="2021:242")
     assert np.allclose((pitch, yaw), (179.417797, 259.703451))

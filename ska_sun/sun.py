@@ -15,11 +15,11 @@ from ska_helpers.utils import LazyVal
 
 
 def load_roll_table():
-    dat = Table.read(Path(__file__).parent / 'data' / 'pitch_roll.fits.gz')
+    dat = Table.read(Path(__file__).parent / "data" / "pitch_roll.fits.gz")
 
     # Add a terminating row to the data such that for pitch at or greater
     # than 180 the allowed roll deviation is defined as 0.
-    dat.add_row({'pitch': 180, 'rolldev': 0})
+    dat.add_row({"pitch": 180, "rolldev": 0})
     return dat
 
 
@@ -31,13 +31,13 @@ def allowed_rolldev(pitch):
     :param pitch: Sun pitch angle (deg)
     :returns: Roll deviation (deg)
     """
-    idx1 = np.searchsorted(ROLL_TABLE.val['pitch'], pitch, side='right')
+    idx1 = np.searchsorted(ROLL_TABLE.val["pitch"], pitch, side="right")
     idx0 = idx1 - 1
     idx_max = len(ROLL_TABLE.val) - 1
     idx0 = np.clip(idx0, 0, idx_max)
     idx1 = np.clip(idx1, 0, idx_max)
-    val0 = ROLL_TABLE.val['rolldev'][idx0]
-    val1 = ROLL_TABLE.val['rolldev'][idx1]
+    val0 = ROLL_TABLE.val["rolldev"][idx0]
+    val1 = ROLL_TABLE.val["rolldev"][idx1]
     out = np.minimum(val0, val1)  # works even for a vector input for `pitch`
     return out
 
@@ -236,7 +236,7 @@ def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None):
     sun_eci = Ska.quatutil.radec2eci(sun_ra, sun_dec)
     body_x = Ska.quatutil.radec2eci(ra, dec)
     if np.sum((sun_eci - body_x) ** 2) < 1e-10:
-        raise ValueError('No nominal roll for ra, dec == sun_ra, sun_dec')
+        raise ValueError("No nominal roll for ra, dec == sun_ra, sun_dec")
     body_y = np.cross(body_x, sun_eci)
     body_y = body_y / np.sqrt(np.sum(body_y**2))
     body_z = np.cross(body_x, body_y)
@@ -309,7 +309,7 @@ def get_sun_pitch_yaw(ra, dec, time=None, sun_ra=None, sun_dec=None):
     sun_frame_rot = sun_frame.transform.T
 
     # Compute attitude vector in Sun frame.
-    att_sun = np.einsum('...jk,...k->...j', sun_frame_rot, att_eci)
+    att_sun = np.einsum("...jk,...k->...j", sun_frame_rot, att_eci)
 
     # Usual for pitch and yaw. The yaw is set to match ORviewer:
     # get_sun_pitch_yaw(109, 55.3, time='2021:242') ~ (60, 30)

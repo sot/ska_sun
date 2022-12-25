@@ -12,10 +12,10 @@
 import numpy as np
 from astropy.table import Table
 
-dat = Table.read('pitch_roll_2022.csv')
+dat = Table.read("pitch_roll_2022.csv")
 
-assert np.allclose(np.abs(dat['negrolldev']), dat['rolldev'], rtol=0, atol=1e-08)
+assert np.allclose(np.abs(dat["negrolldev"]), dat["rolldev"], rtol=0, atol=1e-08)
 
-dat['pitch'] = dat['pitch'].astype(np.float32)
-dat['rolldev'] = dat['rolldev'].astype(np.float32)
-dat['pitch', 'rolldev'].write('pitch_roll.fits.gz', overwrite=True)
+dat["pitch"] = dat["pitch"].astype(np.float32)
+dat["rolldev"] = dat["rolldev"].astype(np.float32)
+dat["pitch", "rolldev"].write("pitch_roll.fits.gz", overwrite=True)
