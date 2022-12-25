@@ -2,9 +2,16 @@
 
 import numpy as np
 from Quaternion import Quat
-from ..sun import (apply_sun_pitch_yaw, get_sun_pitch_yaw, nominal_roll,
-                   off_nominal_roll, position, allowed_rolldev,
-                   pitch as sun_pitch)
+
+from ..sun import (
+    allowed_rolldev,
+    apply_sun_pitch_yaw,
+    get_sun_pitch_yaw,
+    nominal_roll,
+    off_nominal_roll,
+)
+from ..sun import pitch as sun_pitch
+from ..sun import position
 
 
 def test_allowed_rolldev():

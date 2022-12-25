@@ -11,6 +11,7 @@
 
 import numpy as np
 from astropy.table import Table
+
 dat = Table.read('pitch_roll_2022.csv')
 
 assert np.allclose(np.abs(dat['negrolldev']), dat['rolldev'], rtol=0, atol=1e-08)

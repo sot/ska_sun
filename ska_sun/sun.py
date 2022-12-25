@@ -2,16 +2,16 @@
 """
 Utility for calculating sun position, pitch angle and values related to roll.
 """
+from math import acos, asin, atan2, cos, degrees, pi, radians, sin
 from pathlib import Path
-import numpy as np
-from math import cos, sin, acos, atan2, asin, pi, radians, degrees
-from astropy.table import Table
 
-from ska_helpers.utils import LazyVal
-from Quaternion import Quat
-from chandra_aca.transform import radec_to_eci
-from Chandra.Time import DateTime
+import numpy as np
 import Ska.quatutil
+from astropy.table import Table
+from Chandra.Time import DateTime
+from chandra_aca.transform import radec_to_eci
+from Quaternion import Quat
+from ska_helpers.utils import LazyVal
 
 
 def load_roll_table():

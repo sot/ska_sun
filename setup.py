@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 from setuptools import setup
-from testr.setup_helper import cmdclass
 from ska_helpers.setup_helper import duplicate_package_info
+from testr.setup_helper import cmdclass
 
 name = "ska_sun"
 namespace = "Ska.Sun"
