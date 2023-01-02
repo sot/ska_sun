@@ -126,8 +126,15 @@ def position(time):
     :param time: Input time (Chandra.Time compatible format)
     :rtype: RA, Dec in decimal degrees (J2000).
     """
+    # Most of the computational time is spent converting to JD.
+    time_jd = DateTime(time).jd
+    out = position_at_jd(time_jd)
+    return out
 
-    t = (DateTime(time).jd - 2415020) / (36525.0)
+
+@numba.njit
+def position_at_jd(jd):
+    t = (jd - 2415020) / (36525.0)
 
     dtor = pi / 180
 
@@ -203,6 +210,7 @@ def position(time):
     return ra / dtor, dec / dtor
 
 
+@numba.njit
 def sph_dist(a1, d1, a2, d2):
     """Calculate spherical distance between two sky positions.
 
@@ -262,8 +270,8 @@ def _radec2eci(ra, dec):
 
     This is a numba-ized version of the original code in Ska.quatutil.
 
-    :param ra: Right Ascension (degrees)
-    :param dec: Declination (degrees)
+    :param ra: Right Ascension (float, degrees)
+    :param dec: Declination (float, degrees)
     :returns: numpy array ECI (3-vector)
     """
     r = np.radians(ra)
@@ -271,8 +279,7 @@ def _radec2eci(ra, dec):
     return np.array([np.cos(r) * np.cos(d), np.sin(r) * np.cos(d), np.sin(d)])
 
 
-@numba.njit
-def nominal_roll(ra, dec, sun_ra, sun_dec):
+def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None):
     """Calculate nominal roll angle for the given spacecraft attitude ``ra``,
     ``dec`` at ``time``.  Optionally one can provide explicit values of
     ``sun_ra`` and ``sun_dec`` instead of ``time``.
@@ -291,8 +298,14 @@ def nominal_roll(ra, dec, sun_ra, sun_dec):
     :returns: nominal roll angle (deg)
 
     """
-    # if time is not None:
-    #    sun_ra, sun_dec = position(time)
+    if time is not None:
+        sun_ra, sun_dec = position(time)
+    roll = _nominal_roll(ra, dec, sun_ra, sun_dec)
+    return roll
+
+
+@numba.njit
+def _nominal_roll(ra, dec, sun_ra, sun_dec):
     sun_eci = _radec2eci(sun_ra, sun_dec)
     body_x = _radec2eci(ra, dec)
     if np.sum((sun_eci - body_x) ** 2) < 1e-10:
@@ -307,10 +320,15 @@ def nominal_roll(ra, dec, sun_ra, sun_dec):
     return roll
 
 
-def off_nominal_roll(att, sun_ra=None, sun_dec=None):
+def off_nominal_roll(att, time=None, sun_ra=None, sun_dec=None):
     """
-    Calculate off-nominal roll angle for the given spacecraft attitude ``att``, at
-    ``time``.  Off-nominal roll is defined as roll - nominal roll.
+    Calculate off-nominal roll angle for spacecraft attitude ``att``.
+
+    This function is not vectorized so inputs must be scalars.
+
+    Off-nominal roll is defined as roll - nominal roll. If ``time`` is provided
+    then the sun position is calculated from ``time``, otherwise you must
+    provide ``sun_ra`` and ``sun_dec``.
 
     Example::
 
@@ -325,11 +343,18 @@ def off_nominal_roll(att, sun_ra=None, sun_dec=None):
 
     :returns: off nominal roll angle (deg)
     """
+    if time is not None:
+        sun_ra, sun_dec = position(time)
 
-    q = att if isinstance(att, Quat) else Quat(att)
-    roll = q.roll
+    if isinstance(att, Quat):
+        ra, dec, roll = att.equatorial
+    elif len(att) == 3:
+        ra, dec, roll = att
+    else:
+        q = Quat(att)
+        ra, dec, roll = q.equatorial
 
-    nom_roll = nominal_roll(q.ra, q.dec, sun_ra, sun_dec)
+    nom_roll = _nominal_roll(ra, dec, sun_ra, sun_dec)
     off_nom_roll = roll - nom_roll
 
     if off_nom_roll < -180:
