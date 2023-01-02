@@ -132,7 +132,7 @@ def position(time):
     return out
 
 
-@numba.njit
+@numba.njit(cache=True)
 def position_at_jd(jd):
     t = (jd - 2415020) / (36525.0)
 
@@ -210,7 +210,7 @@ def position_at_jd(jd):
     return ra / dtor, dec / dtor
 
 
-@numba.njit
+@numba.njit(cache=True)
 def sph_dist(a1, d1, a2, d2):
     """Calculate spherical distance between two sky positions.
 
@@ -263,7 +263,7 @@ def pitch(ra, dec, time=None, sun_ra=None, sun_dec=None):
     return pitch
 
 
-@numba.njit
+@numba.njit(cache=True)
 def _radec2eci(ra, dec):
     """
     Convert from RA,Dec to ECI for single RA,Dec pair.
@@ -304,7 +304,7 @@ def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None):
     return roll
 
 
-@numba.njit
+@numba.njit(cache=True)
 def _nominal_roll(ra, dec, sun_ra, sun_dec):
     sun_eci = _radec2eci(sun_ra, sun_dec)
     body_x = _radec2eci(ra, dec)
