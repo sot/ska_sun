@@ -1,5 +1,5 @@
-:mod:`Ska.Sun`
+:mod:`ska_sun`
 ======================
 
-.. automodule:: Ska.Sun.sun
+.. automodule:: ska_sun.sun
    :members:
