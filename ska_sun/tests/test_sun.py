@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import numpy as np
+import pytest
 from Quaternion import Quat
 
 from ..sun import (
@@ -13,29 +14,35 @@ from ..sun import (
 from ..sun import pitch as sun_pitch
 from ..sun import position
 
-
-def test_allowed_rolldev():
-    # Test array of pitchs and allowed roll dev
-    testarr = [
-        [135, 13.979],
-        [138, 14.516],
+# Expected pitch, rolldev pairs
+exp_pitch_rolldev = np.array(
+    [
         [0, 0],
         [40, 0],
-        [179.9, 18.748772],
-        [179.997, 0],
+        [56.0, 0],
+        [85.49229, 4.95597],
+        [85.52, 4.9560848],
+        [124.99, 12.23652],
+        [125, 12.2380],
+        [135, 13.979],
+        [138, 14.516],
+        [179.9, 18.749],
+        [179.997, 18.749],
         [180, 0],
         [181, 0],
-        [85.49229, 13.677669],
-        [85.52, 18.756727],
-        [124.99, 18.748772],
-        [125, 17.0],
     ]
-    for pitch, rolldev in testarr:
-        assert np.isclose(allowed_rolldev(pitch), rolldev)
+)
 
-    # Also test with pitch as vector
+@pytest.mark.parametrize("pitch, rolldev", exp_pitch_rolldev)
+def test_allowed_rolldev(pitch, rolldev):
+
+    # Test array of pitchs and allowed roll dev
+    assert np.isclose(allowed_rolldev(pitch), rolldev)
+
+
+def test_allowed_rolldev_vector():
     assert np.allclose(
-        allowed_rolldev(np.array(testarr)[:, 0]), np.array(testarr)[:, 1]
+        allowed_rolldev(exp_pitch_rolldev[:, 0]), exp_pitch_rolldev[:, 1]
     )
 
 

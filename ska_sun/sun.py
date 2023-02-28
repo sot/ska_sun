@@ -3,7 +3,6 @@
 Utility for calculating sun position, pitch angle and values related to roll.
 """
 from math import acos, asin, atan2, cos, degrees, pi, radians, sin
-from pathlib import Path
 
 import numpy as np
 import Ska.quatutil
@@ -12,14 +11,20 @@ from Chandra.Time import DateTime
 from chandra_aca.transform import radec_to_eci
 from Quaternion import Quat
 from ska_helpers.utils import LazyVal
+from ska_helpers import chandra_models
+
+
+CHANDRA_MODELS_PITCH_ROLL_FILE = "chandra_models/pitch_roll/pitch_roll_constraint.csv"
 
 
 def load_roll_table():
-    dat = Table.read(Path(__file__).parent / "data" / "pitch_roll.fits.gz")
+    """Load the pitch/roll table from the chandra_models repo."""
+    dat = chandra_models.get_data(
+        CHANDRA_MODELS_PITCH_ROLL_FILE, read_func=Table.read
+    )
+    # Sanity check that the pitch values are monotonically increasing.
+    assert np.all(np.diff(dat["pitch"]) > 0)
 
-    # Add a terminating row to the data such that for pitch at or greater
-    # than 180 the allowed roll deviation is defined as 0.
-    dat.add_row({"pitch": 180, "rolldev": 0})
     return dat
 
 
@@ -28,17 +33,24 @@ ROLL_TABLE = LazyVal(load_roll_table)
 
 def allowed_rolldev(pitch):
     """Get allowed roll deviation (off-nominal roll) for the given ``pitch``.
-    :param pitch: Sun pitch angle (deg)
-    :returns: Roll deviation (deg)
+
+    This performs a linear interpolation of the values in the pitch/roll table in
+    the chandra_models repo in ``chandra_models/pitch_roll/pitch_roll_constraint.csv``.
+
+    For pitch values outside the range of the table the returned rolldev is 0.
+
+    :param pitch: float, ndarray
+        Sun pitch angle (deg)
+    :returns: float, ndarray
+        Roll deviation (deg)
     """
-    idx1 = np.searchsorted(ROLL_TABLE.val["pitch"], pitch, side="right")
-    idx0 = idx1 - 1
-    idx_max = len(ROLL_TABLE.val) - 1
-    idx0 = np.clip(idx0, 0, idx_max)
-    idx1 = np.clip(idx1, 0, idx_max)
-    val0 = ROLL_TABLE.val["rolldev"][idx0]
-    val1 = ROLL_TABLE.val["rolldev"][idx1]
-    out = np.minimum(val0, val1)  # works even for a vector input for `pitch`
+    out = np.interp(
+        x=pitch,
+        xp=ROLL_TABLE.val["pitch"],
+        fp=ROLL_TABLE.val["off_nom_roll"],
+        left=0,
+        right=0,
+    )
     return out
 
 
