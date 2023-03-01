@@ -15,7 +15,6 @@ from ..sun import position
 
 
 def test_allowed_rolldev():
-
     # Test array of pitchs and allowed roll dev
     testarr = [
         [135, 13.979],
@@ -87,13 +86,13 @@ def test_apply_sun_pitch_yaw_with_grid():
     """Use np.ogrid to make a grid of RA/Dec values (via dpitches and dyaws)"""
     dpitches, dyaws = np.ogrid[0:-3:2j, -5:5:3j]
     atts = apply_sun_pitch_yaw(
-        att=[0, 45, 10], pitch=dpitches, yaw=dyaws, sun_ra=0, sun_dec=90
+        att=[1, 45, 10], pitch=dpitches, yaw=dyaws, sun_ra=0, sun_dec=90
     )
     assert atts.shape == (2, 3)
     exp = np.array(
         [
-            [[355.0, 45.0, 10.0], [360.0, 45.0, 10.0], [5.0, 45.0, 10.0]],
-            [[355.0, 48.0, 10.0], [0.0, 48.0, 10.0], [5.0, 48.0, 10.0]],
+            [[356.0, 45.0, 10.0], [1.0, 45.0, 10.0], [6.0, 45.0, 10.0]],
+            [[356.0, 48.0, 10.0], [1.0, 48.0, 10.0], [6.0, 48.0, 10.0]],
         ]
     )
     assert np.allclose(atts.equatorial, exp)
