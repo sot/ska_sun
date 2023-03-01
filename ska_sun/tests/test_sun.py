@@ -34,9 +34,9 @@ exp_pitch_rolldev = np.array(
     ]
 )
 
+
 @pytest.mark.parametrize("pitch, rolldev", exp_pitch_rolldev)
 def test_allowed_rolldev(pitch, rolldev):
-
     # Test array of pitchs and allowed roll dev
     assert np.isclose(allowed_rolldev(pitch), rolldev)
 
