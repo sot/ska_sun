@@ -19,9 +19,7 @@ CHANDRA_MODELS_PITCH_ROLL_FILE = "chandra_models/pitch_roll/pitch_roll_constrain
 
 def load_roll_table():
     """Load the pitch/roll table from the chandra_models repo."""
-    dat = chandra_models.get_data(
-        CHANDRA_MODELS_PITCH_ROLL_FILE, read_func=Table.read
-    )
+    dat = chandra_models.get_data(CHANDRA_MODELS_PITCH_ROLL_FILE, read_func=Table.read)
     # Sanity check that the pitch values are monotonically increasing.
     assert np.all(np.diff(dat["pitch"]) > 0)
 
@@ -37,7 +35,8 @@ def allowed_rolldev(pitch):
     This performs a linear interpolation of the values in the pitch/roll table in
     the chandra_models repo in ``chandra_models/pitch_roll/pitch_roll_constraint.csv``.
 
-    For pitch values outside the range of the table the returned rolldev is 0.
+    For pitch values outside the range of the table the returned rolldev is -1.0,
+    corresonding to a pitch angle outside of the planning limits.
 
     :param pitch: float, ndarray
         Sun pitch angle (deg)
@@ -48,8 +47,8 @@ def allowed_rolldev(pitch):
         x=pitch,
         xp=ROLL_TABLE.val["pitch"],
         fp=ROLL_TABLE.val["off_nom_roll"],
-        left=0,
-        right=0,
+        left=-1.0,
+        right=-1.0,
     )
     return out
 
