@@ -9,11 +9,9 @@ namespace = "Ska.Sun"
 
 packages = ["ska_sun", "ska_sun.tests"]
 package_dir = {name: name}
-package_data = {name: ["data/*fits.gz"]}
 
 duplicate_package_info(packages, name, namespace)
 duplicate_package_info(package_dir, name, namespace)
-duplicate_package_info(package_data, name, namespace)
 
 setup(
     name=name,
@@ -25,7 +23,6 @@ setup(
     zip_safe=False,
     package_dir=package_dir,
     packages=packages,
-    package_data=package_data,
     tests_require=["pytest"],
     cmdclass=cmdclass,
 )
