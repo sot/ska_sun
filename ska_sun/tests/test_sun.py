@@ -4,15 +4,15 @@ import numpy as np
 import pytest
 from Quaternion import Quat
 
-from ..sun import (
+from ska_sun.sun import (
     allowed_rolldev,
     apply_sun_pitch_yaw,
     get_sun_pitch_yaw,
     nominal_roll,
     off_nominal_roll,
 )
-from ..sun import pitch as sun_pitch
-from ..sun import position
+from ska_sun.sun import pitch as sun_pitch
+from ska_sun.sun import position
 
 # Expected pitch, rolldev pairs
 exp_pitch_rolldev = np.array(
@@ -117,3 +117,18 @@ def test_get_sun_pitch_yaw():
     assert np.allclose((pitch, yaw), (92.405603, 210.56582))
     pitch, yaw = get_sun_pitch_yaw(338, -9.1, time="2021:242")
     assert np.allclose((pitch, yaw), (179.417797, 259.703451))
+
+
+def test_roll_table_meta():
+    from ska_sun.sun import ROLL_TABLE
+
+    # A sampling of args from the roll table meta
+    exp = {
+        "file_path": "chandra_models/pitch_roll/pitch_roll_constraint.csv",
+        "version": None,
+        "repo_path": "None",
+        "require_latest_version": False,
+        "timeout": 5,
+    }
+    for key, val in exp.items():
+        assert ROLL_TABLE.val.meta["call_args"][key] == val
