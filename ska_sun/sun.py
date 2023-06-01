@@ -10,16 +10,23 @@ from astropy.table import Table
 from Chandra.Time import DateTime
 from chandra_aca.transform import radec_to_eci
 from Quaternion import Quat
-from ska_helpers.utils import LazyVal
 from ska_helpers import chandra_models
-
+from ska_helpers.utils import LazyVal
 
 CHANDRA_MODELS_PITCH_ROLL_FILE = "chandra_models/pitch_roll/pitch_roll_constraint.csv"
 
 
 def load_roll_table():
     """Load the pitch/roll table from the chandra_models repo."""
-    dat = chandra_models.get_data(CHANDRA_MODELS_PITCH_ROLL_FILE, read_func=Table.read)
+
+    def read_func(filename):
+        return Table.read(filename), filename
+
+    dat, info = chandra_models.get_data(
+        CHANDRA_MODELS_PITCH_ROLL_FILE, read_func=read_func
+    )
+    dat.meta.update(info)
+
     # Sanity check that the pitch values are monotonically increasing.
     assert np.all(np.diff(dat["pitch"]) > 0)
 
