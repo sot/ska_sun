@@ -27,8 +27,9 @@ def load_roll_table():
     )
     dat.meta.update(info)
 
-    # Sanity check that the pitch values are monotonically increasing.
-    assert np.all(np.diff(dat["pitch"]) > 0)
+    # Sanity check that the pitch values are monotonically increasing. Duplicate values
+    # are allowed and np.interp will choose the second one in this case.
+    assert np.all(np.diff(dat["pitch"]) >= 0)
 
     return dat
 
