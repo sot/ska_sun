@@ -36,12 +36,14 @@ exp_pitch_rolldev = np.array(
 
 
 @pytest.mark.parametrize("pitch, rolldev", exp_pitch_rolldev)
-def test_allowed_rolldev(pitch, rolldev):
+def test_allowed_rolldev(pitch, rolldev, monkeypatch):
+    monkeypatch.setenv("CHANDRA_MODELS_DEFAULT_VERSION", "3.49")
     # Test array of pitchs and allowed roll dev
     assert np.isclose(allowed_rolldev(pitch), rolldev)
 
 
-def test_allowed_rolldev_vector():
+def test_allowed_rolldev_vector(monkeypatch):
+    monkeypatch.setenv("CHANDRA_MODELS_DEFAULT_VERSION", "3.49")
     assert np.allclose(
         allowed_rolldev(exp_pitch_rolldev[:, 0]), exp_pitch_rolldev[:, 1]
     )
