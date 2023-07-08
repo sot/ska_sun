@@ -14,6 +14,7 @@ from Chandra.Time import DateTime
 from chandra_aca.transform import radec_to_eci
 from Quaternion import Quat
 from ska_helpers import chandra_models
+import ska_helpers.paths
 
 
 @functools.lru_cache()
@@ -37,7 +38,7 @@ def _get_roll_table(repo_dir, version):
 
 
 def get_roll_table():
-    repo_dir = os.environ.get("CHANDRA_MODELS_REPO_DIR")
+    repo_dir = ska_helpers.paths.chandra_models_repo_path()
     version = os.environ.get("CHANDRA_MODELS_DEFAULT_VERSION")
     return _get_roll_table(repo_dir, version=version)
 
