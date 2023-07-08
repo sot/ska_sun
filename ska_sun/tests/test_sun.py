@@ -1,11 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
-import contextlib
-
 import numpy as np
 import pytest
 from Quaternion import Quat
-from ska_helpers.utils import LazyVal
 
 import ska_sun.sun
 from ska_sun.sun import (
@@ -39,35 +36,19 @@ exp_pitch_rolldev = np.array(
 )
 
 
-@contextlib.contextmanager
-def clear_roll_table_lazy_val():
-    """Context manager to ensure the ROLL_TABLE LazyVal global is cleared before and
-    after the test.
-
-    This is needed to change the chandra_models version. Kinda yucky but there is no
-    convenient way to do this otherwise."""
-    if hasattr(ska_sun.sun.ROLL_TABLE, "_val"):
-        ska_sun.sun.ROLL_TABLE = LazyVal(ska_sun.sun.load_roll_table)
-    yield
-    if hasattr(ska_sun.sun.ROLL_TABLE, "_val"):
-        ska_sun.sun.ROLL_TABLE = LazyVal(ska_sun.sun.load_roll_table)
-
-
 @pytest.mark.parametrize("pitch, rolldev", exp_pitch_rolldev)
 def test_allowed_rolldev(pitch, rolldev, monkeypatch):
-    monkeypatch.setenv("CHANDRA_MODELS_DEFAULT_VERSION", "3.49")
+    monkeypatch.setenv("CHANDRA_MODELS_DEFAULT_VERSION", "3.48")
     # Test array of pitchs and allowed roll dev
-    with clear_roll_table_lazy_val():
-        assert np.isclose(allowed_rolldev(pitch), rolldev)
+    assert np.isclose(allowed_rolldev(pitch), rolldev)
 
 
 def test_allowed_rolldev_vector(monkeypatch):
     # Force reload of roll table
-    monkeypatch.setenv("CHANDRA_MODELS_DEFAULT_VERSION", "3.49")
-    with clear_roll_table_lazy_val():
-        assert np.allclose(
-            allowed_rolldev(exp_pitch_rolldev[:, 0]), exp_pitch_rolldev[:, 1]
-        )
+    monkeypatch.setenv("CHANDRA_MODELS_DEFAULT_VERSION", "3.48")
+    assert np.allclose(
+        allowed_rolldev(exp_pitch_rolldev[:, 0]), exp_pitch_rolldev[:, 1]
+    )
 
 
 def test_duplicate_pitch_rolldev(monkeypatch):
@@ -76,9 +57,8 @@ def test_duplicate_pitch_rolldev(monkeypatch):
     # duplicate pitch values, including pitch=85.5 with 12.436 and 17.5 roll dev vals.
     # The test is to make sure that the code handles this.
     monkeypatch.setenv("CHANDRA_MODELS_DEFAULT_VERSION", "68670fc")
-    with clear_roll_table_lazy_val():
-        assert np.isclose(allowed_rolldev(85.5), 17.5, rtol=0, atol=1e-6)
-        assert np.isclose(allowed_rolldev(85.5 - 1e-10), 12.436, rtol=0, atol=1e-6)
+    assert np.isclose(allowed_rolldev(85.5), 17.5, rtol=0, atol=1e-6)
+    assert np.isclose(allowed_rolldev(85.5 - 1e-10), 12.436, rtol=0, atol=1e-6)
 
 
 def test_position():
@@ -154,7 +134,7 @@ def test_get_sun_pitch_yaw():
 
 
 def test_roll_table_meta():
-    from ska_sun.sun import ROLL_TABLE
+    roll_table = ska_sun.get_roll_table()
 
     # A sampling of args from the roll table meta
     exp = {
@@ -165,4 +145,4 @@ def test_roll_table_meta():
         "timeout": 5,
     }
     for key, val in exp.items():
-        assert ROLL_TABLE.val.meta["call_args"][key] == val
+        assert roll_table.meta["call_args"][key] == val

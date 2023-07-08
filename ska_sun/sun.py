@@ -2,7 +2,10 @@
 """
 Utility for calculating sun position, pitch angle and values related to roll.
 """
+import os
 from math import acos, asin, atan2, cos, degrees, pi, radians, sin
+import functools
+from pathlib import Path
 
 import numpy as np
 import Ska.quatutil
@@ -11,19 +14,18 @@ from Chandra.Time import DateTime
 from chandra_aca.transform import radec_to_eci
 from Quaternion import Quat
 from ska_helpers import chandra_models
-from ska_helpers.utils import LazyVal
-
-CHANDRA_MODELS_PITCH_ROLL_FILE = "chandra_models/pitch_roll/pitch_roll_constraint.csv"
 
 
-def load_roll_table():
-    """Load the pitch/roll table from the chandra_models repo."""
+@functools.lru_cache()
+def _get_roll_table(repo_dir, version):
+    model_path = Path("chandra_models") / "pitch_roll" / "pitch_roll_constraint.csv"
 
+    # Read in data from `filename`, basically the existing load table function
     def read_func(filename):
         return Table.read(filename), filename
 
     dat, info = chandra_models.get_data(
-        CHANDRA_MODELS_PITCH_ROLL_FILE, read_func=read_func
+        model_path, read_func=read_func, version=version
     )
     dat.meta.update(info)
 
@@ -34,7 +36,10 @@ def load_roll_table():
     return dat
 
 
-ROLL_TABLE = LazyVal(load_roll_table)
+def get_roll_table():
+    repo_dir = os.environ.get("CHANDRA_MODELS_REPO_DIR")
+    version = os.environ.get("CHANDRA_MODELS_DEFAULT_VERSION")
+    return _get_roll_table(repo_dir, version=version)
 
 
 def allowed_rolldev(pitch):
@@ -51,10 +56,12 @@ def allowed_rolldev(pitch):
     :returns: float, ndarray
         Roll deviation (deg)
     """
+    roll_table = get_roll_table()
+
     out = np.interp(
         x=pitch,
-        xp=ROLL_TABLE.val["pitch"],
-        fp=ROLL_TABLE.val["off_nom_roll"],
+        xp=roll_table["pitch"],
+        fp=roll_table["off_nom_roll"],
         left=-1.0,
         right=-1.0,
     )
