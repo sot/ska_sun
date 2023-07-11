@@ -1,18 +1,18 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import numpy as np
-import pytest
 from Quaternion import Quat
 
-from ska_sun.sun import (
+import ska_sun
+from ska_sun import (
     allowed_rolldev,
     apply_sun_pitch_yaw,
     get_sun_pitch_yaw,
     nominal_roll,
     off_nominal_roll,
 )
-from ska_sun.sun import pitch as sun_pitch
-from ska_sun.sun import position
+from ska_sun import pitch as sun_pitch
+from ska_sun import position
 
 # Expected pitch, rolldev pairs
 exp_pitch_rolldev = np.array(
@@ -35,16 +35,35 @@ exp_pitch_rolldev = np.array(
 )
 
 
-@pytest.mark.parametrize("pitch, rolldev", exp_pitch_rolldev)
-def test_allowed_rolldev(pitch, rolldev):
-    # Test array of pitchs and allowed roll dev
-    assert np.isclose(allowed_rolldev(pitch), rolldev)
+def test_allowed_rolldev_with_roll_table(monkeypatch):
+    """Test computing scalar values with explicit roll table"""
+    monkeypatch.setenv("CHANDRA_MODELS_DEFAULT_VERSION", "3.48")
+    roll_table = ska_sun.load_roll_table()
+    for pitch, rolldev in exp_pitch_rolldev:
+        assert np.isclose(allowed_rolldev(pitch, roll_table), rolldev)
 
 
-def test_allowed_rolldev_vector():
+def test_allowed_rolldev_vector_without_roll_table(monkeypatch):
+    """Test passing a vector input and NO explicit roll table"""
+    monkeypatch.setenv("CHANDRA_MODELS_DEFAULT_VERSION", "3.48")
     assert np.allclose(
         allowed_rolldev(exp_pitch_rolldev[:, 0]), exp_pitch_rolldev[:, 1]
     )
+
+
+def test_duplicate_pitch_rolldev(monkeypatch):
+    # This is a commit of the 2023_020 pitch/roll constraint file that is exactly what
+    # was provided by the FOT (except adding the header columns). It contains several
+    # duplicate pitch values, including pitch=85.5 with 12.436 and 17.5 roll dev vals.
+    # The test is to make sure that the code handles this.
+    monkeypatch.setenv("CHANDRA_MODELS_DEFAULT_VERSION", "68670fc")
+    assert np.isclose(allowed_rolldev(85.5), 17.5, rtol=0, atol=1e-6)
+    assert np.isclose(allowed_rolldev(85.5 - 1e-8), 12.436, rtol=0, atol=1e-6)
+    roll_table = ska_sun.load_roll_table()
+    pitch_min = roll_table["pitch"][0]
+    assert np.isclose(allowed_rolldev(pitch_min - 1e-8), -1.0, rtol=0, atol=1e-6)
+    pitch_max = roll_table["pitch"][-1]
+    assert np.isclose(allowed_rolldev(pitch_max + 1e-8), -1.0, rtol=0, atol=1e-6)
 
 
 def test_position():
@@ -120,9 +139,8 @@ def test_get_sun_pitch_yaw():
 
 
 def test_roll_table_meta():
-    from ska_sun.sun import ROLL_TABLE
-
     # A sampling of args from the roll table meta
+    roll_table = ska_sun.load_roll_table()
     exp = {
         "file_path": "chandra_models/pitch_roll/pitch_roll_constraint.csv",
         "version": None,
@@ -131,4 +149,12 @@ def test_roll_table_meta():
         "timeout": 5,
     }
     for key, val in exp.items():
-        assert ROLL_TABLE.val.meta["call_args"][key] == val
+        assert roll_table.meta["call_args"][key] == val
+
+
+def test_roll_table_pitch_increasing():
+    """Check that the pitch values are monotonically increasing. Duplicate values
+    are allowed and np.interp will choose the second one in this case.
+    """
+    dat = ska_sun.load_roll_table()
+    assert np.all(np.diff(dat["pitch"]) >= 0)

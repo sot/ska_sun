@@ -11,32 +11,48 @@ from Chandra.Time import DateTime
 from chandra_aca.transform import radec_to_eci
 from Quaternion import Quat
 from ska_helpers import chandra_models
-from ska_helpers.utils import LazyVal
+
+__all__ = [
+    "allowed_rolldev",
+    "apply_sun_pitch_yaw",
+    "get_sun_pitch_yaw",
+    "load_roll_table",
+    "nominal_roll",
+    "off_nominal_roll",
+    "pitch",
+    "position",
+    "sph_dist",
+]
 
 CHANDRA_MODELS_PITCH_ROLL_FILE = "chandra_models/pitch_roll/pitch_roll_constraint.csv"
 
 
+def _roll_table_read_func(filename):
+    return Table.read(filename), filename
+
+
+@chandra_models.chandra_models_cache
 def load_roll_table():
-    """Load the pitch/roll table from the chandra_models repo."""
+    """Load the pitch/roll table from the chandra_models repo.
 
-    def read_func(filename):
-        return Table.read(filename), filename
+    The result depends on environment variables:
 
+    - ``CHANDRA_MODELS_REPO_DIR``: root directory of chandra_models repo
+    - ``CHANDRA_MODELS_DEFAULT_VERSION``: default version of chandra_models to use
+
+    :returns: ``astropy.table.Table``
+        Table with "pitch" and "off_nom_roll" columns. Detailed provenance information
+        is available in the table ``meta`` attribute.
+    """
     dat, info = chandra_models.get_data(
-        CHANDRA_MODELS_PITCH_ROLL_FILE, read_func=read_func
+        CHANDRA_MODELS_PITCH_ROLL_FILE, read_func=_roll_table_read_func
     )
     dat.meta.update(info)
-
-    # Sanity check that the pitch values are monotonically increasing.
-    assert np.all(np.diff(dat["pitch"]) > 0)
 
     return dat
 
 
-ROLL_TABLE = LazyVal(load_roll_table)
-
-
-def allowed_rolldev(pitch):
+def allowed_rolldev(pitch, roll_table=None):
     """Get allowed roll deviation (off-nominal roll) for the given ``pitch``.
 
     This performs a linear interpolation of the values in the pitch/roll table in
@@ -47,13 +63,18 @@ def allowed_rolldev(pitch):
 
     :param pitch: float, ndarray
         Sun pitch angle (deg)
+    :param roll_table: astropy.table.Table
+        Table of pitch/roll values (optional)
     :returns: float, ndarray
         Roll deviation (deg)
     """
+    if roll_table is None:
+        roll_table = load_roll_table()
+
     out = np.interp(
         x=pitch,
-        xp=ROLL_TABLE.val["pitch"],
-        fp=ROLL_TABLE.val["off_nom_roll"],
+        xp=roll_table["pitch"],
+        fp=roll_table["off_nom_roll"],
         left=-1.0,
         right=-1.0,
     )
