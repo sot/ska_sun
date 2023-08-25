@@ -134,16 +134,17 @@ def position_fast(time):
     Code modified from http://idlastro.gsfc.nasa.gov/ftp/pro/astro/sunpos.pro
 
     This implementation is returns coordinates that are in error by as much as
-    0.3 deg. Use the ``position()`` function unless speed is critical.
+    0.3 deg. Use the ``position_accurate()`` function or ``position(.., method='accurate')``
+    unless speed is critical.
 
-    This function is about 40x faster than the ``position()`` function (30 us for a
-    single time vs 1.2 ms). However, the ``position()`` function can be vectorized and
+    This function is about 40x faster than the ``position_accurate()`` function (30 us for a
+    single time vs 1.2 ms). However, the ``position_accurate()`` function can be vectorized and
     the speed difference is reduced.
 
     Example::
 
      >>> import ska_sun
-     >>> ska_sun.position('2008:002:00:01:02')
+     >>> ska_sun.position_fast('2008:002:00:01:02')
      (281.90344855695275, -22.9892737322084)
 
     :param time: Input time (Chandra.Time compatible format)
