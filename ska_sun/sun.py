@@ -13,7 +13,6 @@ from chandra_aca.transform import eci_to_radec, radec_to_eci
 from Quaternion import Quat
 from ska_helpers import chandra_models
 
-
 CHANDRA_MODELS_PITCH_ROLL_FILE = "chandra_models/pitch_roll/pitch_roll_constraint.csv"
 
 from . import conf
@@ -256,11 +255,25 @@ def position(time, method=None, **kwargs):
     """
     Calculate the sun RA, Dec at the given ``time`` from Earth geocenter or Chandra.
 
+    The method for position determination may be explicitly set via kwarg to ``fast`` or
+    ``accurate``.  See `position_fast()` and `position_accurate` methods for details.
+    The default method behavior is set by ``ska_sun.conf.sun_position_method_default``,
+    currently set to `fast`.
+
+    The ``accurate`` method also supports the ``from_chandra`` kwarg.
+
     Example::
 
      >>> import ska_sun
      >>> ska_sun.position('2008:002:00:01:02')
+     (281.90344855695275, -22.9892737322084)
+     >>> ska_sun.position('2008:002:00:01:02', method='accurate')
      (281.7865848220755, -22.99607130644057)
+     >>> with ska_sun.conf.set_temp('sun_position_method_default', 'accurate'):
+     ...    ska_sun.position('2008:002:00:01:02')
+     (281.7865848220755, -22.99607130644057
+     >>> ska_sun.position('2008:002:00:01:02', method='accurate', from_chandra=True)
+     (281.80963749492935, -23.033877980418676)
 
     :param time: Input time(s) (CxoTimeLike)
     :param method: Method to use ("fast" | "accurate", default="fast")
