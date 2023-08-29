@@ -13,9 +13,9 @@ from chandra_aca.transform import eci_to_radec, radec_to_eci
 from Quaternion import Quat
 from ska_helpers import chandra_models
 
-CHANDRA_MODELS_PITCH_ROLL_FILE = "chandra_models/pitch_roll/pitch_roll_constraint.csv"
-
 from . import conf
+
+CHANDRA_MODELS_PITCH_ROLL_FILE = "chandra_models/pitch_roll/pitch_roll_constraint.csv"
 
 __all__ = [
     "allowed_rolldev",
