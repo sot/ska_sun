@@ -71,6 +71,51 @@ def test_position():
     assert np.allclose((ra, dec), (281.903448, -22.989273))
 
 
+def test_position_diff_methods():
+    # First confirm that the method works via option or conf
+    # Use the time of the beginning of obsid 17198
+    time = "2015:338:08:39:46.858"
+    ra_fast1, dec_fast1 = position(time, method="fast")
+    with ska_sun.conf.set_temp("sun_position_method_default", "fast"):
+        ra_fast2, dec_fast2 = position(time)
+    assert ra_fast1 == ra_fast2
+    assert dec_fast1 == dec_fast2
+    # Compare against regression values
+    assert np.isclose(ra_fast1, 250.34925)
+    assert np.isclose(dec_fast1, -22.20589)
+
+    # Review with accurate method (but with default from_chandra still False)
+    ra_acc1, dec_acc1 = position(time, method="accurate")
+    with ska_sun.conf.set_temp("sun_position_method_default", "accurate"):
+        ra_acc2, dec_acc2 = position(time)
+    assert ra_acc1 == ra_acc2
+    assert dec_acc1 == dec_acc2
+    # Compare against regression values
+    assert np.isclose(ra_acc1, 250.11781)
+    assert np.isclose(dec_acc1, -22.17919)
+
+    # Show that the spacecraft pitch is a better match for the accurate method
+    # Pitch is fetch.Msid('DP_PITCH', '2015:338:08:39:46.858', '2015:338:08:40:46.858').vals[0]
+    exp_pitch = 137.05916
+    targ_ra = 29.083099133566247
+    targ_dec = 5.61232476130315
+    sun_pitch_acc = ska_sun.pitch(targ_ra, targ_dec, sun_ra=ra_acc1, sun_dec=dec_acc1)
+    sun_pitch_fast = ska_sun.pitch(
+        targ_ra, targ_dec, sun_ra=ra_fast1, sun_dec=dec_fast1
+    )
+
+    # The accurate method is a close match even without from_chandra=True option to position()
+    assert np.isclose(sun_pitch_acc, exp_pitch, rtol=0, atol=1e-3)
+    assert not np.isclose(sun_pitch_fast, exp_pitch, rtol=0, atol=1e-2)
+    assert np.abs(sun_pitch_acc - exp_pitch) < np.abs(sun_pitch_fast - exp_pitch)
+
+    # And much slower but a little closer match with from_chandra=True
+    # which should be the reference giving the exp_pitch anyway
+    ra_slow, dec_slow = position(time, method="accurate", from_chandra=True)
+    sun_pitch_slow = ska_sun.pitch(targ_ra, targ_dec, sun_ra=ra_slow, sun_dec=dec_slow)
+    assert np.isclose(sun_pitch_slow, exp_pitch, rtol=0, atol=2e-5)
+
+
 def test_nominal_roll():
     roll = nominal_roll(205.3105, -14.6925, time="2011:019:20:51:13")
     assert np.allclose(roll, 68.83020)  # vs. 68.80 for obsid 12393 in JAN1711A
