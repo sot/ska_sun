@@ -13,17 +13,6 @@ from chandra_aca.transform import eci_to_radec, radec_to_eci
 from Quaternion import Quat
 from ska_helpers import chandra_models
 
-__all__ = [
-    "allowed_rolldev",
-    "apply_sun_pitch_yaw",
-    "get_sun_pitch_yaw",
-    "load_roll_table",
-    "nominal_roll",
-    "off_nominal_roll",
-    "pitch",
-    "position",
-    "sph_dist",
-]
 
 CHANDRA_MODELS_PITCH_ROLL_FILE = "chandra_models/pitch_roll/pitch_roll_constraint.csv"
 
@@ -36,6 +25,7 @@ __all__ = [
     "position_accurate",
     "sph_dist",
     "pitch",
+    "load_roll_table",
     "nominal_roll",
     "off_nominal_roll",
     "get_sun_pitch_yaw",
