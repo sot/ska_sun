@@ -4,8 +4,8 @@ Utility for calculating sun position, pitch angle and values related to roll.
 """
 from math import acos, asin, atan2, cos, degrees, pi, radians, sin
 
+import numba
 import numpy as np
-import Ska.quatutil
 from astropy.table import Table
 from Chandra.Time import DateTime
 from chandra_aca.transform import radec_to_eci
@@ -126,8 +126,15 @@ def position(time):
     :param time: Input time (Chandra.Time compatible format)
     :rtype: RA, Dec in decimal degrees (J2000).
     """
+    # Most of the computational time is spent converting to JD.
+    time_jd = DateTime(time).jd
+    out = position_at_jd(time_jd)
+    return out
 
-    t = (DateTime(time).jd - 2415020) / (36525.0)
+
+@numba.njit(cache=True)
+def position_at_jd(jd):
+    t = (jd - 2415020) / (36525.0)
 
     dtor = pi / 180
 
@@ -203,6 +210,7 @@ def position(time):
     return ra / dtor, dec / dtor
 
 
+@numba.njit(cache=True)
 def sph_dist(a1, d1, a2, d2):
     """Calculate spherical distance between two sky positions.
 
@@ -230,25 +238,45 @@ def sph_dist(a1, d1, a2, d2):
     return degrees(acos(val))
 
 
-def pitch(ra, dec, time):
-    """Calculate sun pitch angle for the given spacecraft attitude ``ra``,
-    ``dec`` at ``time``.
+def pitch(ra, dec, time=None, sun_ra=None, sun_dec=None):
+    """Calculate sun pitch angle for spacecraft attitude ``ra``, ``dec``.
+
+    You can provide either ``time`` or explicit values of ``sun_ra`` and ``sun_dec``.
 
     Example::
 
      >>> ska_sun.pitch(10., 20., '2009:001:00:01:02')
      96.256434327840864
 
-    :param ra: right ascension
-    :param dec: declination
-    :param time: time (any Chandra.Time format)
+    :param ra: target right ascension (deg)
+    :param dec: target declination (deg)
+    :param time: time (CxoTimeLike) [optional]
+    :param sun_ra: sun RA (deg) instead of time [optional]
+    :param sun_dec: sun Dec (deg) instead of time [optional]
 
     :returns: sun pitch angle (deg)
     """
-    sun_ra, sun_dec = position(time)
+    if time is not None:
+        sun_ra, sun_dec = position(time)
     pitch = sph_dist(ra, dec, sun_ra, sun_dec)
 
     return pitch
+
+
+@numba.njit(cache=True)
+def _radec2eci(ra, dec):
+    """
+    Convert from RA,Dec to ECI for single RA,Dec pair.
+
+    This is a numba-ized version of the original code in Ska.quatutil.
+
+    :param ra: Right Ascension (float, degrees)
+    :param dec: Declination (float, degrees)
+    :returns: numpy array ECI (3-vector)
+    """
+    r = np.radians(ra)
+    d = np.radians(dec)
+    return np.array([np.cos(r) * np.cos(d), np.sin(r) * np.cos(d), np.sin(d)])
 
 
 def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None):
@@ -272,8 +300,14 @@ def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None):
     """
     if time is not None:
         sun_ra, sun_dec = position(time)
-    sun_eci = Ska.quatutil.radec2eci(sun_ra, sun_dec)
-    body_x = Ska.quatutil.radec2eci(ra, dec)
+    roll = _nominal_roll(ra, dec, sun_ra, sun_dec)
+    return roll
+
+
+@numba.njit(cache=True)
+def _nominal_roll(ra, dec, sun_ra, sun_dec):
+    sun_eci = _radec2eci(sun_ra, sun_dec)
+    body_x = _radec2eci(ra, dec)
     if np.sum((sun_eci - body_x) ** 2) < 1e-10:
         raise ValueError("No nominal roll for ra, dec == sun_ra, sun_dec")
     body_y = np.cross(body_x, sun_eci)
@@ -282,14 +316,19 @@ def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None):
     body_z = body_z / np.sqrt(
         np.sum(body_z**2)
     )  # shouldn't be needed but do it anyway
-    q_att = Quat(np.array([body_x, body_y, body_z]).transpose())
-    return q_att.roll
+    roll = np.degrees(np.arctan2(body_y[2], body_z[2]))
+    return roll
 
 
-def off_nominal_roll(att, time):
+def off_nominal_roll(att, time=None, sun_ra=None, sun_dec=None):
     """
-    Calculate off-nominal roll angle for the given spacecraft attitude ``att``, at
-    ``time``.  Off-nominal roll is defined as roll - nominal roll.
+    Calculate off-nominal roll angle for spacecraft attitude ``att``.
+
+    This function is not vectorized so inputs must be scalars.
+
+    Off-nominal roll is defined as roll - nominal roll. If ``time`` is provided
+    then the sun position is calculated from ``time``, otherwise you must
+    provide ``sun_ra`` and ``sun_dec``.
 
     Example::
 
@@ -299,14 +338,23 @@ def off_nominal_roll(att, time):
 
     :param att: any Quat() value (e.g. [ra, dec, roll] or [q1, q2, q3, q4])
     :param time: any DateTime value
+    :param sun_ra: sun RA (deg) instead of time [optional]
+    :param sun_dec: sun Dec (deg) instead of time [optional]
 
     :returns: off nominal roll angle (deg)
     """
+    if time is not None:
+        sun_ra, sun_dec = position(time)
 
-    q = Quat(att)
-    roll = q.roll
+    if isinstance(att, Quat):
+        ra, dec, roll = att.equatorial
+    elif len(att) == 3:
+        ra, dec, roll = att
+    else:
+        q = Quat(att)
+        ra, dec, roll = q.equatorial
 
-    nom_roll = nominal_roll(q.ra, q.dec, time)
+    nom_roll = _nominal_roll(ra, dec, sun_ra, sun_dec)
     off_nom_roll = roll - nom_roll
 
     if off_nom_roll < -180:
