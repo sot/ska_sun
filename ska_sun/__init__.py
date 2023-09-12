@@ -2,6 +2,7 @@
 
 import ska_helpers
 
+from .config import conf  # noqa
 from .sun import *  # noqa
 
 __version__ = ska_helpers.get_version("ska_sun")
