@@ -121,6 +121,11 @@ def test_nominal_roll():
     assert np.allclose(roll, 68.83020)  # vs. 68.80 for obsid 12393 in JAN1711A
 
 
+def test_nominal_roll_range():
+    roll = nominal_roll(0, 89.9, time="2019:006:12:00:00")
+    assert np.allclose(roll, 287.24879)  # range in 0-360 and value for sparkles test
+
+
 def test_off_nominal_roll_and_pitch():
     att = (198.392135, 36.594359, 33.983322)  # RA, Dec, Roll of obsid 16354
     oroll = off_nominal_roll(att, "2015:335:00:00:00")  # NOT the 16354 time
