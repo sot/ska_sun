@@ -377,7 +377,7 @@ def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None):
     :param sun_ra: Sun right ascension (instead of ``time``)
     :param sun_dec: Sun declination (instead of ``time``)
 
-    :returns: nominal roll angle (deg)
+    :returns: nominal roll angle (deg) in 0-360 range
 
     """
     if time is not None:
@@ -399,6 +399,10 @@ def _nominal_roll(ra, dec, sun_ra, sun_dec):
         np.sum(body_z**2)
     )  # shouldn't be needed but do it anyway
     roll = np.degrees(np.arctan2(body_y[2], body_z[2]))
+
+    # Convert to 0-360 range (arctan2 is -pi to pi)
+    roll = roll % 360
+
     return roll
 
 
