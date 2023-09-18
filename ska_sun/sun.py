@@ -401,7 +401,7 @@ def _nominal_roll(ra, dec, sun_ra, sun_dec):
     roll = np.degrees(np.arctan2(body_y[2], body_z[2]))
 
     # Convert to 0-360 range (arctan2 is -pi to pi)
-    roll = (roll + 360) % 360
+    roll = roll % 360
 
     return roll
 
