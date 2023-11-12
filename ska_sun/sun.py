@@ -20,6 +20,7 @@ CHANDRA_MODELS_PITCH_ROLL_FILE = "chandra_models/pitch_roll/pitch_roll_constrain
 __all__ = [
     "allowed_rolldev",
     "position",
+    "position_at_jd",
     "position_fast",
     "position_accurate",
     "sph_dist",
