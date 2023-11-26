@@ -285,6 +285,8 @@ def position_accurate(time, from_chandra=None):
     sun_dec : float
         Declination in decimal degrees (J2000).
     """
+    if from_chandra is None:
+        from_chandra = conf.from_chandra_default
     func = get_planet_chandra if from_chandra else get_planet_eci
     eci_sun = func("sun", time)
     ra, dec = eci_to_radec(eci_sun)
@@ -293,8 +295,8 @@ def position_accurate(time, from_chandra=None):
 
 def position_fast_and_accurate(
     time,
-    ra: Optional[float] = None,
-    dec: Optional[float] = None,
+    targ_ra: Optional[float] = None,
+    targ_dec: Optional[float] = None,
     from_chandra: Optional[bool] = None,
 ):
     """
@@ -309,9 +311,9 @@ def position_fast_and_accurate(
     ----------
     time : CxoTimeLike
         Time at which to calculate the Sun's position.
-    ra : (float, optional)
+    targ_ra : (float, optional)
         Right ascension of a target object. Defaults to None.
-    dec : (float, optional)
+    targ_dec : (float, optional)
         Declination of a target object. Defaults to None.
     from_chandra : bool, optional
         If True compute position from Chandra using cheta ephemeris. Defaults to None.
@@ -325,9 +327,9 @@ def position_fast_and_accurate(
     """
     sun_ra, sun_dec = position(time, method="fast")
 
-    if ra is not None and dec is not None:
+    if targ_ra is not None and targ_dec is not None:
         # Note: sph_dist is very fast about ~300 ns so calling it twice is no problem.
-        pitch = sph_dist(ra, dec, sun_ra, sun_dec)
+        pitch = sph_dist(targ_ra, targ_dec, sun_ra, sun_dec)
         if pitch > conf.fast_and_accurate_pitch_limit:
             sun_ra, sun_dec = position(
                 time, method="accurate", from_chandra=from_chandra
@@ -531,9 +533,8 @@ def _nominal_roll(ra, dec, sun_ra, sun_dec):
     body_y = np.cross(body_x, sun_eci)
     body_y = body_y / np.sqrt(np.sum(body_y**2))
     body_z = np.cross(body_x, body_y)
-    body_z = body_z / np.sqrt(
-        np.sum(body_z**2)
-    )  # shouldn't be needed but do it anyway
+    # shouldn't be needed but do it anyway
+    body_z = body_z / np.sqrt(np.sum(body_z**2))
     roll = np.degrees(np.arctan2(body_y[2], body_z[2]))
 
     # Convert to 0-360 range (arctan2 is -pi to pi)
