@@ -21,21 +21,9 @@ class Conf(ConfigNamespace):
     """
 
     sun_position_method_default = ConfigItem(
-        ["fast_and_accurate", "fast", "accurate"],
+        ["accurate", "fast"],
         "Default value of `method` parameter in ska_sun.position()"
-        ' (default="fast_and_accurate").',
-    )
-
-    fast_and_accurate_pitch_limit = ConfigItem(
-        165.0,
-        "Pitch value above which the accurate method is used for "
-        "ska_sun.pitch() and ska_sun.off_nom_roll() when method='fast_and_accurate'.",
-    )
-
-    from_chandra_default = ConfigItem(
-        False,
-        "Default value of `from_chandra` parameter in ska_sun.position_accurate() "
-        "(default=False).",
+        ' (default="accurate").',
     )
 
 

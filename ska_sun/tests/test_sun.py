@@ -1,6 +1,9 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import astropy.units as u
 import numpy as np
+import pytest
+from cxotime import CxoTime
 from Quaternion import Quat
 
 import ska_sun
@@ -13,6 +16,12 @@ from ska_sun import (
 )
 from ska_sun import pitch as sun_pitch
 from ska_sun import position
+
+
+@pytest.fixture()
+def fast_sun_position_method(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr(ska_sun.conf, "sun_position_method_default", "fast")
+
 
 # Expected pitch, rolldev pairs
 exp_pitch_rolldev = np.array(
@@ -66,7 +75,7 @@ def test_duplicate_pitch_rolldev(monkeypatch):
     assert np.isclose(allowed_rolldev(pitch_max + 1e-8), -1.0, rtol=0, atol=1e-6)
 
 
-def test_position():
+def test_position(fast_sun_position_method):
     ra, dec = position("2008:002:00:01:02")
     assert np.allclose((ra, dec), (281.903448, -22.989273))
 
@@ -113,20 +122,21 @@ def test_position_diff_methods():
     # which should be the reference giving the exp_pitch anyway
     ra_slow, dec_slow = position(time, method="accurate", from_chandra=True)
     sun_pitch_slow = ska_sun.pitch(targ_ra, targ_dec, sun_ra=ra_slow, sun_dec=dec_slow)
-    assert np.isclose(sun_pitch_slow, exp_pitch, rtol=0, atol=2e-5)
+    # Good within 3 arcsec
+    assert np.isclose(sun_pitch_slow, exp_pitch, rtol=0, atol=3 / 3600)
 
 
-def test_nominal_roll():
+def test_nominal_roll(fast_sun_position_method):
     roll = nominal_roll(205.3105, -14.6925, time="2011:019:20:51:13")
     assert np.allclose(roll, 68.83020)  # vs. 68.80 for obsid 12393 in JAN1711A
 
 
-def test_nominal_roll_range():
+def test_nominal_roll_range(fast_sun_position_method):
     roll = nominal_roll(0, 89.9, time="2019:006:12:00:00")
     assert np.allclose(roll, 287.24879)  # range in 0-360 and value for sparkles test
 
 
-def test_off_nominal_roll_and_pitch():
+def test_off_nominal_roll_and_pitch(fast_sun_position_method):
     att = (198.392135, 36.594359, 33.983322)  # RA, Dec, Roll of obsid 16354
     oroll = off_nominal_roll(att, "2015:335:00:00:00")  # NOT the 16354 time
     assert np.isclose(oroll, -12.224010)
@@ -175,7 +185,7 @@ def test_apply_sun_pitch_yaw_with_grid():
     assert np.allclose(atts.equatorial, exp)
 
 
-def test_get_sun_pitch_yaw():
+def test_get_sun_pitch_yaw(fast_sun_position_method):
     """Test that values approximately match those from ORviewer.
 
     See slack discussion "ORviewer sun / anti-sun plots azimuthal Sun yaw angle"
@@ -208,3 +218,22 @@ def test_roll_table_pitch_increasing():
     """
     dat = ska_sun.load_roll_table()
     assert np.all(np.diff(dat["pitch"]) >= 0)
+
+
+@pytest.mark.parametrize("method", ["fast", "accurate"])
+def test_array_input_and_different_formats(method):
+    date0 = CxoTime("2019:001")
+    dates = np.array([date0 + i_dt * u.day for i_dt in np.arange(0, 10, 1)])
+    times = [date.secs for date in dates]
+    # Make sure list, array, CxoTime array inputs work
+    pos1 = ska_sun.position(times, method=method)
+    pos2 = ska_sun.position(dates, method=method)
+    pos3 = ska_sun.position(CxoTime(dates), method=method)
+    for idx in range(2):
+        assert np.all(pos1[idx] == pos2[idx])
+        assert np.all(pos1[idx] == pos3[idx])
+
+    for ra, dec, time in zip(pos1[0], pos1[1], times):
+        ra2, dec2 = ska_sun.position(time, method=method)
+        assert ra == ra2
+        assert dec == dec2

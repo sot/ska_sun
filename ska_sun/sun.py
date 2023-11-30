@@ -2,15 +2,16 @@
 """
 Utility for calculating sun position, pitch angle and values related to roll.
 """
-import functools
-from math import acos, asin, atan2, cos, degrees, pi, radians, sin
-
 import numba
 import numpy as np
 from astropy.table import Table
 from chandra_aca.planets import get_planet_chandra, get_planet_eci
 from chandra_aca.transform import eci_to_radec, radec_to_eci
 from cxotime import convert_time_format
+from numpy import arccos as acos
+from numpy import arcsin as asin
+from numpy import arctan2 as atan2
+from numpy import cos, degrees, pi, radians, sin
 from Quaternion import Quat
 from ska_helpers import chandra_models
 
@@ -36,19 +37,6 @@ __all__ = [
 
 def _roll_table_read_func(filename):
     return Table.read(filename), filename
-
-
-def fill_kwargs_from_conf(items, conf=conf):
-    def wrap_outer(func):
-        @functools.wraps(func)
-        def wrapped_func(*args, **kwargs):
-            for name, item in items.items():
-                kwargs.setdefault(name, getattr(conf, item))
-            return func(*args, **kwargs)
-
-        return wrapped_func
-
-    return wrap_outer
 
 
 @chandra_models.chandra_models_cache
@@ -131,8 +119,7 @@ def allowed_rolldev(pitch, roll_table=None):
 #  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-@functools.lru_cache(maxsize=8)
-def position_fast(time, **kwargs):
+def position_fast(time):
     """
     Calculate the sun position at the given ``time`` using a fast approximation.
 
@@ -178,8 +165,8 @@ def position_fast_at_jd(jd):
 
     Parameters
     ----------
-    time : CxoTimeLike (scalar)
-        Input time.
+    jd : float
+        Input time in JD.
 
     Returns
     -------
@@ -264,17 +251,12 @@ def position_fast_at_jd(jd):
     return ra / dtor, dec / dtor
 
 
-@fill_kwargs_from_conf({"from_chandra": "from_chandra_default"})
-@functools.lru_cache(maxsize=8)
-def position_accurate(time, **kwargs):
+def position_accurate(time, from_chandra=False):
     """
     Calculate the sun RA, Dec at the given ``time`` from Earth geocenter or Chandra.
 
-    The default for ``from_chandra`` is set by ``ska_sun.conf.from_chandra_default``,
-    which defaults to ``False``.
-
-    If ``from_chandra=False`` the position is calculated from Earth geocenter.  If
-    ``from_chandra=True`` the position is calculated from Chandra using the Chandra
+    If ``from_chandra=False`` (default) the position is calculated from Earth geocenter.
+    If ``from_chandra=True`` the position is calculated from Chandra using the Chandra
     predictive ephemeris via the cheta telemetry archive.
 
     These methods rely on the DE432 ephemeris and functions in ``chandra_aca.planets``.
@@ -301,58 +283,10 @@ def position_accurate(time, **kwargs):
     sun_dec : float
         Declination in decimal degrees (J2000).
     """
-    from_chandra = kwargs["from_chandra"]
-
     func = get_planet_chandra if from_chandra else get_planet_eci
     eci_sun = func("sun", time)
     ra, dec = eci_to_radec(eci_sun)
     return ra, dec
-
-
-@fill_kwargs_from_conf({"from_chandra": "from_chandra_default"})
-@functools.lru_cache(maxsize=8)
-def position_fast_and_accurate(
-    time,
-    **kwargs,
-):
-    """
-    Calculate sun RA, Dec at `time`` using a combination of fast and accurate methods.
-
-    If ``ra`` and ``dec`` are provided then the sun pitch angle to that sky position is
-    calculated. If the pitch is greater than
-    ``ska_sun.conf.fast_and_accurate_pitch_limit`` (default 165 deg) then the accurate
-    method is used. Otherwise the fast method is used.
-
-    Parameters
-    ----------
-    time : CxoTimeLike
-        Time at which to calculate the Sun's position.
-    targ_ra : (float, optional)
-        Right ascension of a target object. Defaults to None.
-    targ_dec : (float, optional)
-        Declination of a target object. Defaults to None.
-    from_chandra : bool, optional
-        If True compute position from Chandra using cheta ephemeris. Defaults to None.
-
-    Returns
-    -------
-    sun_ra : float
-        Right ascension of the Sun.
-    sun_dec : float
-        Declination of the Sun.
-    """
-    targ_ra = kwargs.get("targ_ra")
-    targ_dec = kwargs.get("targ_dec")
-    from_chandra = kwargs.get("from_chandra")
-
-    sun_ra, sun_dec = position_fast(time)
-
-    if targ_ra is not None and targ_dec is not None:
-        pitch = sph_dist(targ_ra, targ_dec, sun_ra, sun_dec)
-        if pitch > conf.fast_and_accurate_pitch_limit:
-            sun_ra, sun_dec = position_accurate(time, from_chandra=from_chandra)
-
-    return sun_ra, sun_dec
 
 
 def position(time, method=None, **kwargs):
@@ -361,12 +295,10 @@ def position(time, method=None, **kwargs):
 
     ``method`` sets the method for computing the sun position which is used for pitch.
     The default is set by ``ska_sun.conf.sun_pitch_roll_method_default``, which defaults
-    to ``fast_and_accurate``.  The available options are:
+    to ``accurate``.  The available options are:
 
-    - ``fast_and_accurate``: maintain ``off_nominal_roll`` accuracy to < 2 deg (see
-      ``position_fast_and_accurate()``).
-    - ``fast``: Use the fast method (see ``position_fast()``).
     - ``accurate``: Use the accurate method (see ``position_accurate()``).
+    - ``fast``: Use the fast method (see ``position_fast()``).
 
     Examples
     --------
@@ -438,7 +370,7 @@ def sph_dist(a1, d1, a2, d2):
     d1 = radians(d1)
     a2 = radians(a2)
     d2 = radians(d2)
-    val = cos(d1) * cos(d2) * cos(a1 - a2) + sin(d1) * sin(d2)
+    val = cos(d1) * cos(d2) * cos(a1 - a2) + np.sin(d1) * np.sin(d2)
     if val > 1.0:
         val = 1.0
     elif val < -1.0:
@@ -468,9 +400,8 @@ def pitch(ra, dec, time=None, sun_ra=None, sun_dec=None, method=None):
         Sun RA (deg) instead of time.
     sun_dec : float, optional
         Sun Dec (deg) instead of time.
-    method : str, optional
-        Method for calculating sun position. Valid options are "fast_and_accurate",
-        "fast", and "accurate".
+    method : str, optional.
+        Method for calculating sun position. Valid options are "accurate", "fast".
 
     Returns
     -------
@@ -483,7 +414,7 @@ def pitch(ra, dec, time=None, sun_ra=None, sun_dec=None, method=None):
     96.256434327840864
     """
     if time is not None:
-        sun_ra, sun_dec = position(time, method=method, targ_ra=ra, targ_dec=dec)
+        sun_ra, sun_dec = position(time, method=method)
 
     pitch = sph_dist(ra, dec, sun_ra, sun_dec)
     return pitch
@@ -505,7 +436,7 @@ def _radec2eci(ra, dec):
     return np.array([np.cos(r) * np.cos(d), np.sin(r) * np.cos(d), np.sin(d)])
 
 
-def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None):
+def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None, method=None):
     """
     Calculate the nominal roll angle for the given spacecraft attitude.
 
@@ -518,12 +449,14 @@ def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None):
         Right ascension.
     dec : float
         Declination.
-    time : str, optional
+    time : CxoTimeLike, optional
         Time in any Chandra.Time format.
     sun_ra : float, optional
         Sun right ascension (instead of using `time`).
     sun_dec : float, optional
         Sun declination (instead of using `time`).
+    method : str, optional.
+        Method for calculating sun position. Valid options are "accurate", "fast".
 
     Returns
     -------
@@ -536,7 +469,7 @@ def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None):
     68.830209134280665    # vs. 68.80 for obsid 12393 in JAN1711A
     """
     if time is not None:
-        sun_ra, sun_dec = position(time)
+        sun_ra, sun_dec = position(time, method=method)
     roll = _nominal_roll(ra, dec, sun_ra, sun_dec)
     return roll
 
@@ -589,8 +522,7 @@ def off_nominal_roll(att, time=None, sun_ra=None, sun_dec=None, method=None):
     sun_dec : float, optional
         Sun Dec (deg) instead of time.
     method : str, optional
-        Method for calculating sun position. Valid options are "fast_and_accurate",
-        "fast", and "accurate".
+        Method for calculating sun position. Valid options are "accurate", "fast".
 
     Returns
     -------
@@ -606,7 +538,7 @@ def off_nominal_roll(att, time=None, sun_ra=None, sun_dec=None, method=None):
         ra, dec, roll = q.equatorial
 
     if time is not None:
-        sun_ra, sun_dec = position(time, method=method, targ_ra=ra, targ_dec=dec)
+        sun_ra, sun_dec = position(time, method=method)
 
     nom_roll = _nominal_roll(ra, dec, sun_ra, sun_dec)
     off_nom_roll = roll - nom_roll
