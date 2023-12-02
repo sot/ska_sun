@@ -239,12 +239,7 @@ def position_fast_at_jd(jd):
     # Form Right Ascension and Declination
     lon = lon / 3600.0
     ra = atan2(sin(lon * dtor) * cos(oblt * dtor), cos(lon * dtor))
-
-    while (ra < 0) or (ra > (2 * pi)):
-        if ra < 0:
-            ra += 2 * pi
-        if ra > (2 * pi):
-            ra -= 2 * pi
+    ra = np.mod(ra, 2 * pi)
 
     dec = asin(sin(lon * dtor) * sin(oblt * dtor))
 
