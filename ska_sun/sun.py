@@ -370,7 +370,7 @@ def sph_dist(a1, d1, a2, d2):
     d1 = radians(d1)
     a2 = radians(a2)
     d2 = radians(d2)
-    val = cos(d1) * cos(d2) * cos(a1 - a2) + np.sin(d1) * np.sin(d2)
+    val = cos(d1) * cos(d2) * cos(a1 - a2) + sin(d1) * sin(d2)
     if val > 1.0:
         val = 1.0
     elif val < -1.0:
@@ -415,8 +415,8 @@ def pitch(ra, dec, time=None, sun_ra=None, sun_dec=None, method=None):
     """
     if time is not None:
         sun_ra, sun_dec = position(time, method=method)
-
     pitch = sph_dist(ra, dec, sun_ra, sun_dec)
+
     return pitch
 
 
@@ -529,6 +529,9 @@ def off_nominal_roll(att, time=None, sun_ra=None, sun_dec=None, method=None):
     float
         Off-nominal roll angle in the range of -180 to 180 degrees.
     """
+    if time is not None:
+        sun_ra, sun_dec = position(time, method=method)
+
     if isinstance(att, Quat):
         ra, dec, roll = att.equatorial
     elif len(att) == 3:
@@ -536,9 +539,6 @@ def off_nominal_roll(att, time=None, sun_ra=None, sun_dec=None, method=None):
     else:
         q = Quat(att)
         ra, dec, roll = q.equatorial
-
-    if time is not None:
-        sun_ra, sun_dec = position(time, method=method)
 
     nom_roll = _nominal_roll(ra, dec, sun_ra, sun_dec)
     off_nom_roll = roll - nom_roll
