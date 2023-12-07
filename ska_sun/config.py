@@ -21,8 +21,9 @@ class Conf(ConfigNamespace):
     """
 
     sun_position_method_default = ConfigItem(
-        ["fast", "accurate"],
-        'Default value of `method` parameter in ska_sun.position() (default="fast").',
+        ["accurate", "fast"],
+        "Default value of `method` parameter in ska_sun.position()"
+        ' (default="accurate").',
     )
 
 
