@@ -546,11 +546,36 @@ def off_nominal_roll(att, time=None, sun_ra=None, sun_dec=None, method=None):
     return off_nom_roll
 
 
-def get_sun_pitch_yaw(ra, dec, time=None, sun_ra=None, sun_dec=None):
+def get_sun_pitch_yaw(
+    ra, dec, time=None, sun_ra=None, sun_dec=None, coord_system="spacecraft"
+):
     """Get Sun pitch and yaw angles of Sky coordinate(s).
 
     If ``time`` is provided then that is used to compute the sun position. Otherwise
     ``sun_ra`` and ``sun_dec`` must be provided.
+
+    The yaw coordinate system can be "spacecraft" (default) or "ORviewer". The
+    "spacecraft" system matches the engineering definition of yaw about the Sun at
+    a sun pitch of 90 degrees: zero yaw is defined as the ECI z-axis if the Sun is at
+    exactly RA = Dec = 0.
+
+    The example below uses real telemetry from the 2024:036 NSM recovery activity. At around
+    2024:036:01:32:00.000, a "positive yaw bias of 0.025 deg/s for 30 minutes" was
+    applied. The yaw maneuver converged to a stable attitude around  0210z. The
+    expectation is that pitch is 90.0 and yaw *increases* by 45 degrees of the maneuver.
+    ::
+
+      >>> from ska_sun import get_sun_pitch_yaw
+      >>> from Quaternion import Quat
+
+      # From telemetry at 2024:036 0130z and 0210z
+      >>> att0 = Quat([60.35823393, -34.92322161, 291.13817936])
+      >>> att1 = Quat([111.94789334, -71.01495527, 335.27170577])
+
+      >>> get_sun_pitch_yaw(att0.ra, att0.dec, time="2024:036:01:30:00")
+      (90.60565371045911, 126.82092681074306)
+      >>> get_sun_pitch_yaw(att1.ra, att1.dec, time="2024:036:02:10:00")
+      (90.97070080025568, 171.81963428481384)
 
     :param ra: float, ndarray
         RA(s)
@@ -563,6 +588,8 @@ def get_sun_pitch_yaw(ra, dec, time=None, sun_ra=None, sun_dec=None):
         RA of sun.  If not given, use estimated sun RA at ``date``.
     :param sun_dec: float, optional
         Dec of sun.  If not given, use estimated sun dec at ``date``.
+    :param coord_system: str, optional
+        Coordinate system for yaw ("spacecraft" | "ORviewer", default="spacecraft").
 
     :returns:
         2-tuple (pitch, yaw) in degrees.
@@ -586,17 +613,43 @@ def get_sun_pitch_yaw(ra, dec, time=None, sun_ra=None, sun_dec=None):
     # get_sun_pitch_yaw(109, 55.3, time='2021:242') ~ (60, 30)
     # get_sun_pitch_yaw(238.2, -58.9, time='2021:242') ~ (90, 210)
     pitch = np.arccos(att_sun[..., 0])
-    yaw = -np.arctan2(att_sun[..., 1], att_sun[..., 2])  # -pi <= yaw < pi
+    sign = 1 if coord_system == "spacecraft" else -1
+    yaw = sign * np.arctan2(att_sun[..., 1], att_sun[..., 2])  # -pi <= yaw < pi
     yaw = yaw % (2 * np.pi)  # 0 <= yaw < 2pi
 
     return np.rad2deg(pitch), np.rad2deg(yaw)
 
 
-def apply_sun_pitch_yaw(att, pitch=0, yaw=0, time=None, sun_ra=None, sun_dec=None):
+def apply_sun_pitch_yaw(
+    att, pitch=0, yaw=0, time=None, sun_ra=None, sun_dec=None, coord_system="spacecraft"
+):
     """Apply pitch(es) and yaw(s) about Sun line to an attitude.
 
     If ``time`` is provided then that is used to compute the sun position. Otherwise
     ``sun_ra`` and ``sun_dec`` must be provided.
+
+    The yaw coordinate system can be "spacecraft" (default) or "ORviewer". The
+    "spacecraft" system matches the engineering definition of yaw about the Sun at
+    a sun pitch of 90 degrees: zero yaw is defined as the ECI z-axis if the Sun is at
+    exactly RA = Dec = 0.
+
+    The example below uses real telemetry from the 2024:036 NSM recovery activity. At
+    around 2024:036:01:32:00.000, a "positive yaw bias of 0.025 deg/s for 30 minutes"
+    was applied. The yaw maneuver converged to a stable attitude around  0210z. The
+    expectation that the computed attitude matches the 0210z attitude from telemetry
+    to within about a degree.
+    ::
+
+      >>> from ska_sun import apply_sun_pitch_yaw
+
+      >>> # From telemetry at 2024:036 0130z and 0210z
+      >>> att0 = Quat([60.35823393, -34.92322161, 291.13817936])
+      >>> att1 = Quat([111.94789334, -71.01495527, 335.27170577])
+
+      # Apply yaw bias to the 0130z attitude using sun position midway.
+      >>> att1_apply = apply_sun_pitch_yaw(att0, pitch=0, yaw=45, time="2024:036:01:47:00")
+      >>> att1_apply.equatorial
+      array([111.44329433, -71.34681456, 335.48326522])
 
     :param att: Quaternion-like
         Attitude(s) to be rotated.
@@ -608,11 +661,13 @@ def apply_sun_pitch_yaw(att, pitch=0, yaw=0, time=None, sun_ra=None, sun_dec=Non
         RA of sun.  If not given, use estimated sun RA at ``time``.
     :param sun_dec: float, optional
         Dec of sun.  If not given, use estimated sun dec at ``time``.
+    :param coord_system: str, optional
+        Coordinate system for yaw ("spacecraft" | "ORviewer", default="spacecraft").
 
     :returns: Quat
         Modified attitude(s)
-
     """
+
     if not isinstance(att, Quat):
         att = Quat(att)
 
@@ -630,6 +685,9 @@ def apply_sun_pitch_yaw(att, pitch=0, yaw=0, time=None, sun_ra=None, sun_dec=Non
 
     # Broadcast input pitch and yaw to a common shape
     pitches, yaws = np.broadcast_arrays(pitch, yaw)
+    if coord_system == "spacecraft":
+        yaws = -yaws
+
     out_shape = pitches.shape
     # Get pitches and yaws as 1-d iterables
     pitches = np.atleast_1d(pitches).ravel()

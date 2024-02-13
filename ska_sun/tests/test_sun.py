@@ -149,31 +149,53 @@ def test_off_nominal_roll_and_pitch(fast_sun_position_method):
     assert np.isclose(pitch, 139.5651)  # vs. 139.59 in SOT MP page
 
 
-def test_apply_get_sun_pitch_yaw():
+@pytest.mark.parametrize("coord_system", ["spacecraft", "ORviewer"])
+def test_apply_get_sun_pitch_yaw(coord_system):
     """Test apply and get sun_pitch_yaw with multiple components"""
     att = apply_sun_pitch_yaw(
-        [0, 45, 0], pitch=[0, 10, 20], yaw=[0, 5, 10], sun_ra=0, sun_dec=90
+        [0, 45, 0],
+        pitch=[0, 10, 20],
+        yaw=[0, 5, 10],
+        sun_ra=0,
+        sun_dec=90,
+        coord_system=coord_system,
     )
-    pitch, yaw = get_sun_pitch_yaw(att.ra, att.dec, sun_ra=0, sun_dec=90)
+    pitch, yaw = get_sun_pitch_yaw(
+        att.ra, att.dec, sun_ra=0, sun_dec=90, coord_system=coord_system
+    )
+    # The results are the same for both coord_systems because apply_ and get_ have the
+    # same sign convention for yaw.
     assert np.allclose(pitch, 45 + np.array([0, 10, 20]))
     assert np.allclose(yaw, 180 + np.array([0, 5, 10]))
 
 
-def test_apply_sun_pitch_yaw():
+@pytest.mark.parametrize("coord_system", ["spacecraft", "ORviewer"])
+def test_apply_sun_pitch_yaw(coord_system):
     """Basic test of apply_sun_pitch_yaw"""
     att = Quat(equatorial=[0, 45, 0])
-    att2 = apply_sun_pitch_yaw(att, pitch=10, yaw=0, sun_ra=0, sun_dec=0)
+    att2 = apply_sun_pitch_yaw(
+        att, pitch=10, yaw=0, sun_ra=0, sun_dec=0, coord_system=coord_system
+    )
     assert np.allclose((att2.ra, att2.dec), (0, 55))
 
-    att2 = apply_sun_pitch_yaw(att, pitch=0, yaw=10, sun_ra=0, sun_dec=90)
-    assert np.allclose((att2.ra, att2.dec), (10, 45))
+    att2 = apply_sun_pitch_yaw(
+        att, pitch=0, yaw=10, sun_ra=0, sun_dec=90, coord_system=coord_system
+    )
+    # In this case we apply a yaw and so the result depends on the coord_system.
+    sign = -1.0 if coord_system == "spacecraft" else 1.0
+    assert np.allclose((att2.ra, att2.dec), ((sign * 10) % 360, 45))
 
 
 def test_apply_sun_pitch_yaw_with_grid():
     """Use np.ogrid to make a grid of RA/Dec values (via dpitches and dyaws)"""
     dpitches, dyaws = np.ogrid[0:-3:2j, -5:5:3j]
     atts = apply_sun_pitch_yaw(
-        att=[1, 45, 10], pitch=dpitches, yaw=dyaws, sun_ra=0, sun_dec=90
+        att=[1, 45, 10],
+        pitch=dpitches,
+        yaw=dyaws,
+        sun_ra=0,
+        sun_dec=90,
+        coord_system="ORviewer",
     )
     assert atts.shape == (2, 3)
     exp = np.array(
@@ -190,12 +212,40 @@ def test_get_sun_pitch_yaw(fast_sun_position_method):
 
     See slack discussion "ORviewer sun / anti-sun plots azimuthal Sun yaw angle"
     """
-    pitch, yaw = get_sun_pitch_yaw(109, 55.3, time="2021:242")
+    pitch, yaw = get_sun_pitch_yaw(109, 55.3, time="2021:242", coord_system="ORviewer")
     assert np.allclose((pitch, yaw), (60.453385, 29.880125))
-    pitch, yaw = get_sun_pitch_yaw(238.2, -58.9, time="2021:242")
+    pitch, yaw = get_sun_pitch_yaw(
+        238.2, -58.9, time="2021:242", coord_system="ORviewer"
+    )
     assert np.allclose((pitch, yaw), (92.405603, 210.56582))
-    pitch, yaw = get_sun_pitch_yaw(338, -9.1, time="2021:242")
+    pitch, yaw = get_sun_pitch_yaw(338, -9.1, time="2021:242", coord_system="ORviewer")
     assert np.allclose((pitch, yaw), (179.417797, 259.703451))
+
+
+def test_apply_get_sun_pitch_yaw_spacecraft_sign():
+    """Test the sign of a yaw applied to a spacecraft attitude.
+
+    This uses real telemetry from the 2024:036 NSM recovery activity. At around
+    2024:036:01:32:00.000, a "positive yaw bias of 0.025 deg/s for 30 minutes" was
+    applied. The yaw maneuver converged to a stable attitude around  0210z. The
+    expectation is that pitch is 90.0 and yaw *increases* by 45 degrees of the maneuver.
+    """
+    # From telemetry at 2024:036 0130z and 0210z
+    att0 = Quat([60.35823393, -34.92322161, 291.13817936])
+    att1 = Quat([111.94789334, -71.01495527, 335.27170577])
+    pitch0, yaw0 = get_sun_pitch_yaw(att0.ra, att0.dec, time="2024:036:01:30:00")
+    pitch1, yaw1 = get_sun_pitch_yaw(att1.ra, att1.dec, time="2024:036:02:10:00")
+    assert np.isclose(pitch0, 90.0, atol=1)
+    assert np.isclose(pitch1, 90.0, atol=1)
+    assert np.isclose(yaw1 - yaw0, 45, atol=1)
+
+    # Apply yaw bias to the 0130z attitude using sun position midway. This gives
+    # ra, dec, roll = [111.44329433 -71.34681456 335.48326522].
+    att1_apply = apply_sun_pitch_yaw(att0, pitch=0, yaw=45, time="2024:036:01:47:00")
+    dq = att1_apply.dq(att1)
+    assert abs(dq.pitch) < 1
+    assert abs(dq.yaw) < 1
+    assert abs(dq.roll0) < 1
 
 
 def test_roll_table_meta():
