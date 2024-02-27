@@ -1,18 +1,17 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>ska_sun &#8212; ska_sun 3.13.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
+    <title>ska_sun &#8212; ska_sun 3.14.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/documentation_options.js?v=e4f4b189"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -46,7 +45,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="#">ska_sun 3.13.0 documentation</a>
+	<a href="#">ska_sun 3.14.0 documentation</a>
 	 &#187;
       </li>
       
@@ -61,11 +60,11 @@
           <div class="body" role="main">
             
   <section id="module-ska_sun.sun">
-<span id="ska-sun"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">ska_sun</span></code><a class="headerlink" href="#module-ska_sun.sun" title="Permalink to this heading">¶</a></h1>
+<span id="ska-sun"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">ska_sun</span></code><a class="headerlink" href="#module-ska_sun.sun" title="Link to this heading">¶</a></h1>
 <p>Utility for calculating sun position, pitch angle and values related to roll.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_sun.sun.allowed_rolldev">
-<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">allowed_rolldev</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roll_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#allowed_rolldev"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.allowed_rolldev" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">allowed_rolldev</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pitch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roll_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#allowed_rolldev"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.allowed_rolldev" title="Link to this definition">¶</a></dt>
 <dd><p>Get allowed roll deviation (off-nominal roll) for the given <code class="docutils literal notranslate"><span class="pre">pitch</span></code>.</p>
 <p>This performs a linear interpolation of the values in the pitch/roll table in
 the chandra_models repo in <code class="docutils literal notranslate"><span class="pre">chandra_models/pitch_roll/pitch_roll_constraint.csv</span></code>.</p>
@@ -89,10 +88,31 @@ Roll deviation (deg)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_sun.sun.apply_sun_pitch_yaw">
-<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">apply_sun_pitch_yaw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">att</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yaw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_ra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_dec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#apply_sun_pitch_yaw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.apply_sun_pitch_yaw" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">apply_sun_pitch_yaw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">att</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pitch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yaw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_ra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_dec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_system</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'spacecraft'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#apply_sun_pitch_yaw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.apply_sun_pitch_yaw" title="Link to this definition">¶</a></dt>
 <dd><p>Apply pitch(es) and yaw(s) about Sun line to an attitude.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">time</span></code> is provided then that is used to compute the sun position. Otherwise
 <code class="docutils literal notranslate"><span class="pre">sun_ra</span></code> and <code class="docutils literal notranslate"><span class="pre">sun_dec</span></code> must be provided.</p>
+<p>The yaw coordinate system can be “spacecraft” (default) or “ORviewer”. The
+“spacecraft” system matches the engineering definition of yaw about the Sun at
+a sun pitch of 90 degrees: zero yaw is defined as the ECI z-axis if the Sun is at
+exactly RA = Dec = 0.</p>
+<p>The example below uses real telemetry from the 2024:036 NSM recovery activity. At
+around 2024:036:01:32:00.000, a “positive yaw bias of 0.025 deg/s for 30 minutes”
+was applied. The yaw maneuver converged to a stable attitude around  0210z. The
+expectation that the computed attitude matches the 0210z attitude from telemetry
+to within about a degree.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">ska_sun</span> <span class="kn">import</span> <span class="n">apply_sun_pitch_yaw</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># From telemetry at 2024:036 0130z and 0210z</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">att0</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">([</span><span class="mf">60.35823393</span><span class="p">,</span> <span class="o">-</span><span class="mf">34.92322161</span><span class="p">,</span> <span class="mf">291.13817936</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">att1</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">([</span><span class="mf">111.94789334</span><span class="p">,</span> <span class="o">-</span><span class="mf">71.01495527</span><span class="p">,</span> <span class="mf">335.27170577</span><span class="p">])</span>
+
+<span class="go"># Apply yaw bias to the 0130z attitude using sun position midway.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">att1_apply</span> <span class="o">=</span> <span class="n">apply_sun_pitch_yaw</span><span class="p">(</span><span class="n">att0</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yaw</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="s2">&quot;2024:036:01:47:00&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">att1_apply</span><span class="o">.</span><span class="n">equatorial</span>
+<span class="go">array([111.44329433, -71.34681456, 335.48326522])</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -106,6 +126,8 @@ Sun yaw offsets (deg)</p></li>
 RA of sun.  If not given, use estimated sun RA at <code class="docutils literal notranslate"><span class="pre">time</span></code>.</p></li>
 <li><p><strong>sun_dec</strong> – float, optional
 Dec of sun.  If not given, use estimated sun dec at <code class="docutils literal notranslate"><span class="pre">time</span></code>.</p></li>
+<li><p><strong>coord_system</strong> – str, optional
+Coordinate system for yaw (“spacecraft” | “ORviewer”, default=”spacecraft”).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -117,10 +139,31 @@ Modified attitude(s)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_sun.sun.get_sun_pitch_yaw">
-<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">get_sun_pitch_yaw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_ra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_dec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#get_sun_pitch_yaw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.get_sun_pitch_yaw" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">get_sun_pitch_yaw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_ra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_dec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coord_system</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'spacecraft'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#get_sun_pitch_yaw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.get_sun_pitch_yaw" title="Link to this definition">¶</a></dt>
 <dd><p>Get Sun pitch and yaw angles of Sky coordinate(s).</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">time</span></code> is provided then that is used to compute the sun position. Otherwise
 <code class="docutils literal notranslate"><span class="pre">sun_ra</span></code> and <code class="docutils literal notranslate"><span class="pre">sun_dec</span></code> must be provided.</p>
+<p>The yaw coordinate system can be “spacecraft” (default) or “ORviewer”. The
+“spacecraft” system matches the engineering definition of yaw about the Sun at
+a sun pitch of 90 degrees: zero yaw is defined as the ECI z-axis if the Sun is at
+exactly RA = Dec = 0.</p>
+<p>The example below uses real telemetry from the 2024:036 NSM recovery activity. At around
+2024:036:01:32:00.000, a “positive yaw bias of 0.025 deg/s for 30 minutes” was
+applied. The yaw maneuver converged to a stable attitude around  0210z. The
+expectation is that pitch is 90.0 and yaw <em>increases</em> by 45 degrees of the maneuver.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">ska_sun</span> <span class="kn">import</span> <span class="n">get_sun_pitch_yaw</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Quaternion</span> <span class="kn">import</span> <span class="n">Quat</span>
+
+<span class="go"># From telemetry at 2024:036 0130z and 0210z</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">att0</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">([</span><span class="mf">60.35823393</span><span class="p">,</span> <span class="o">-</span><span class="mf">34.92322161</span><span class="p">,</span> <span class="mf">291.13817936</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">att1</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">([</span><span class="mf">111.94789334</span><span class="p">,</span> <span class="o">-</span><span class="mf">71.01495527</span><span class="p">,</span> <span class="mf">335.27170577</span><span class="p">])</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_sun_pitch_yaw</span><span class="p">(</span><span class="n">att0</span><span class="o">.</span><span class="n">ra</span><span class="p">,</span> <span class="n">att0</span><span class="o">.</span><span class="n">dec</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="s2">&quot;2024:036:01:30:00&quot;</span><span class="p">)</span>
+<span class="go">(90.60565371045911, 126.82092681074306)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_sun_pitch_yaw</span><span class="p">(</span><span class="n">att1</span><span class="o">.</span><span class="n">ra</span><span class="p">,</span> <span class="n">att1</span><span class="o">.</span><span class="n">dec</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="s2">&quot;2024:036:02:10:00&quot;</span><span class="p">)</span>
+<span class="go">(90.97070080025568, 171.81963428481384)</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -135,6 +178,8 @@ if provided or else use current date.</p></li>
 RA of sun.  If not given, use estimated sun RA at <code class="docutils literal notranslate"><span class="pre">date</span></code>.</p></li>
 <li><p><strong>sun_dec</strong> – float, optional
 Dec of sun.  If not given, use estimated sun dec at <code class="docutils literal notranslate"><span class="pre">date</span></code>.</p></li>
+<li><p><strong>coord_system</strong> – str, optional
+Coordinate system for yaw (“spacecraft” | “ORviewer”, default=”spacecraft”).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -145,7 +190,7 @@ Dec of sun.  If not given, use estimated sun dec at <code class="docutils litera
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_sun.sun.load_roll_table">
-<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">load_roll_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#load_roll_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.load_roll_table" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">load_roll_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#load_roll_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.load_roll_table" title="Link to this definition">¶</a></dt>
 <dd><p>Load the pitch/roll table from the chandra_models repo.</p>
 <p>The result depends on environment variables:</p>
 <ul class="simple">
@@ -163,7 +208,7 @@ is available in the table <code class="docutils literal notranslate"><span class
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_sun.sun.nominal_roll">
-<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">nominal_roll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_ra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_dec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#nominal_roll"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.nominal_roll" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">nominal_roll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_ra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_dec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#nominal_roll"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.nominal_roll" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate the nominal roll angle for the given spacecraft attitude.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">time</span></code> is provided then that is used to compute the sun position. Otherwise
 <code class="docutils literal notranslate"><span class="pre">sun_ra</span></code> and <code class="docutils literal notranslate"><span class="pre">sun_dec</span></code> must be provided.</p>
@@ -200,7 +245,7 @@ is available in the table <code class="docutils literal notranslate"><span class
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_sun.sun.off_nominal_roll">
-<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">off_nominal_roll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">att</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_ra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_dec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#off_nominal_roll"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.off_nominal_roll" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">off_nominal_roll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">att</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_ra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_dec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#off_nominal_roll"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.off_nominal_roll" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate off-nominal roll angle for spacecraft attitude <code class="docutils literal notranslate"><span class="pre">att</span></code>.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">time</span></code> is provided then that is used to compute the sun position. Otherwise
 <code class="docutils literal notranslate"><span class="pre">sun_ra</span></code> and <code class="docutils literal notranslate"><span class="pre">sun_dec</span></code> must be provided.</p>
@@ -239,7 +284,7 @@ details.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_sun.sun.pitch">
-<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">pitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_ra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_dec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#pitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.pitch" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">pitch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_ra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sun_dec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#pitch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.pitch" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate sun pitch angle for spacecraft attitude.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">time</span></code> is provided then that is used to compute the sun position. Otherwise
 <code class="docutils literal notranslate"><span class="pre">sun_ra</span></code> and <code class="docutils literal notranslate"><span class="pre">sun_dec</span></code> must be provided.</p>
@@ -278,7 +323,7 @@ See <code class="docutils literal notranslate"><span class="pre">position()</spa
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_sun.sun.position">
-<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.position" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.position" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate the sun RA, Dec at the given <code class="docutils literal notranslate"><span class="pre">time</span></code> from Earth geocenter or Chandra.</p>
 <p><code class="docutils literal notranslate"><span class="pre">method</span></code> sets the method for computing the sun position which is used for pitch.
 The default is set by <code class="docutils literal notranslate"><span class="pre">ska_sun.conf.sun_pitch_roll_method_default</span></code>, which defaults
@@ -324,7 +369,7 @@ to <code class="docutils literal notranslate"><span class="pre">accurate</span><
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_sun.sun.position_accurate">
-<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">position_accurate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_chandra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#position_accurate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.position_accurate" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">position_accurate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_chandra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#position_accurate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.position_accurate" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate the sun RA, Dec at the given <code class="docutils literal notranslate"><span class="pre">time</span></code> from Earth geocenter or Chandra.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">from_chandra=False</span></code> (default) the position is calculated from Earth geocenter.
 If <code class="docutils literal notranslate"><span class="pre">from_chandra=True</span></code> the position is calculated from Chandra using the Chandra
@@ -360,7 +405,7 @@ With <code class="docutils literal notranslate"><span class="pre">from_chandra=F
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_sun.sun.position_fast">
-<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">position_fast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#position_fast"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.position_fast" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">position_fast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#position_fast"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.position_fast" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate the sun position at the given <code class="docutils literal notranslate"><span class="pre">time</span></code> using a fast approximation.</p>
 <p>Code modified from <a class="reference external" href="http://idlastro.gsfc.nasa.gov/ftp/pro/astro/sunpos.pro">http://idlastro.gsfc.nasa.gov/ftp/pro/astro/sunpos.pro</a></p>
 <p>This implementation is returns coordinates that are in error by as much as
@@ -395,7 +440,7 @@ the speed difference is reduced.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_sun.sun.position_fast_at_jd">
-<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">position_fast_at_jd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jd</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#position_fast_at_jd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.position_fast_at_jd" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">position_fast_at_jd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jd</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#position_fast_at_jd"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.position_fast_at_jd" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate the sun position at the given <code class="docutils literal notranslate"><span class="pre">time</span></code> (JD) using a fast approximation.</p>
 <p>See <code class="docutils literal notranslate"><span class="pre">position_fast()</span></code> for details.</p>
 <dl class="field-list simple">
@@ -418,7 +463,7 @@ the speed difference is reduced.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_sun.sun.sph_dist">
-<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">sph_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#sph_dist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.sph_dist" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ska_sun.sun.</span></span><span class="sig-name descname"><span class="pre">sph_dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_sun/sun.html#sph_dist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_sun.sun.sph_dist" title="Link to this definition">¶</a></dt>
 <dd><p>Calculate spherical distance between two sky positions.</p>
 <p>Not highly accurate for very small angles, but this function is very fast for
 scalars (about 300 ns on modern hardware).</p>
@@ -495,7 +540,7 @@ scalars (about 300 ns on modern hardware).</p>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2020, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 6.1.3. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
   </p>
 </footer>
   </body>

@@ -1,17 +1,16 @@
-
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ska_sun.sun &#8212; ska_sun 3.13.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css" />
+    <title>ska_sun.sun &#8212; ska_sun 3.14.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/documentation_options.js?v=e4f4b189"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
     <script type="text/javascript" src="../../_static/copybutton.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -45,7 +44,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">ska_sun 3.13.0 documentation</a>
+	<a href="../../index.html">ska_sun 3.14.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -102,7 +101,9 @@
     <span class="k">return</span> <span class="n">Table</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">filename</span>
 
 
-<div class="viewcode-block" id="load_roll_table"><a class="viewcode-back" href="../../index.html#ska_sun.sun.load_roll_table">[docs]</a><span class="nd">@chandra_models</span><span class="o">.</span><span class="n">chandra_models_cache</span>
+<div class="viewcode-block" id="load_roll_table">
+<a class="viewcode-back" href="../../index.html#ska_sun.sun.load_roll_table">[docs]</a>
+<span class="nd">@chandra_models</span><span class="o">.</span><span class="n">chandra_models_cache</span>
 <span class="k">def</span> <span class="nf">load_roll_table</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load the pitch/roll table from the chandra_models repo.</span>
 
@@ -123,7 +124,10 @@
     <span class="k">return</span> <span class="n">dat</span></div>
 
 
-<div class="viewcode-block" id="allowed_rolldev"><a class="viewcode-back" href="../../index.html#ska_sun.sun.allowed_rolldev">[docs]</a><span class="k">def</span> <span class="nf">allowed_rolldev</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">roll_table</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="allowed_rolldev">
+<a class="viewcode-back" href="../../index.html#ska_sun.sun.allowed_rolldev">[docs]</a>
+<span class="k">def</span> <span class="nf">allowed_rolldev</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">roll_table</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get allowed roll deviation (off-nominal roll) for the given ``pitch``.</span>
 
 <span class="sd">    This performs a linear interpolation of the values in the pitch/roll table in</span>
@@ -150,6 +154,7 @@
         <span class="n">right</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">out</span></div>
+
 
 
 <span class="c1"># The position() method is a modification of</span>
@@ -182,7 +187,9 @@
 <span class="c1">#  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
 
 
-<div class="viewcode-block" id="position_fast"><a class="viewcode-back" href="../../index.html#ska_sun.sun.position_fast">[docs]</a><span class="k">def</span> <span class="nf">position_fast</span><span class="p">(</span><span class="n">time</span><span class="p">):</span>
+<div class="viewcode-block" id="position_fast">
+<a class="viewcode-back" href="../../index.html#ska_sun.sun.position_fast">[docs]</a>
+<span class="k">def</span> <span class="nf">position_fast</span><span class="p">(</span><span class="n">time</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the sun position at the given ``time`` using a fast approximation.</span>
 
@@ -220,7 +227,10 @@
     <span class="k">return</span> <span class="n">out</span></div>
 
 
-<div class="viewcode-block" id="position_fast_at_jd"><a class="viewcode-back" href="../../index.html#ska_sun.sun.position_fast_at_jd">[docs]</a><span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="position_fast_at_jd">
+<a class="viewcode-back" href="../../index.html#ska_sun.sun.position_fast_at_jd">[docs]</a>
+<span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">position_fast_at_jd</span><span class="p">(</span><span class="n">jd</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the sun position at the given ``time`` (JD) using a fast approximation.</span>
 
@@ -309,7 +319,10 @@
     <span class="k">return</span> <span class="n">ra</span> <span class="o">/</span> <span class="n">dtor</span><span class="p">,</span> <span class="n">dec</span> <span class="o">/</span> <span class="n">dtor</span></div>
 
 
-<div class="viewcode-block" id="position_accurate"><a class="viewcode-back" href="../../index.html#ska_sun.sun.position_accurate">[docs]</a><span class="k">def</span> <span class="nf">position_accurate</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">from_chandra</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="position_accurate">
+<a class="viewcode-back" href="../../index.html#ska_sun.sun.position_accurate">[docs]</a>
+<span class="k">def</span> <span class="nf">position_accurate</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">from_chandra</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the sun RA, Dec at the given ``time`` from Earth geocenter or Chandra.</span>
 
@@ -347,7 +360,10 @@
     <span class="k">return</span> <span class="n">ra</span><span class="p">,</span> <span class="n">dec</span></div>
 
 
-<div class="viewcode-block" id="position"><a class="viewcode-back" href="../../index.html#ska_sun.sun.position">[docs]</a><span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="position">
+<a class="viewcode-back" href="../../index.html#ska_sun.sun.position">[docs]</a>
+<span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the sun RA, Dec at the given ``time`` from Earth geocenter or Chandra.</span>
 
@@ -393,13 +409,16 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">position_func</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="s2">&quot;position_&quot;</span> <span class="o">+</span> <span class="n">method</span><span class="p">]</span>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid sun position method &#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="bp">None</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid sun position method &#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="kc">None</span>
 
     <span class="n">ra</span><span class="p">,</span> <span class="n">dec</span> <span class="o">=</span> <span class="n">position_func</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ra</span><span class="p">,</span> <span class="n">dec</span></div>
 
 
-<div class="viewcode-block" id="sph_dist"><a class="viewcode-back" href="../../index.html#ska_sun.sun.sph_dist">[docs]</a><span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="sph_dist">
+<a class="viewcode-back" href="../../index.html#ska_sun.sun.sph_dist">[docs]</a>
+<span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">sph_dist</span><span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">d1</span><span class="p">,</span> <span class="n">a2</span><span class="p">,</span> <span class="n">d2</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate spherical distance between two sky positions.</span>
 
@@ -436,7 +455,10 @@
     <span class="k">return</span> <span class="n">degrees</span><span class="p">(</span><span class="n">acos</span><span class="p">(</span><span class="n">val</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="pitch"><a class="viewcode-back" href="../../index.html#ska_sun.sun.pitch">[docs]</a><span class="k">def</span> <span class="nf">pitch</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_ra</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_dec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="pitch">
+<a class="viewcode-back" href="../../index.html#ska_sun.sun.pitch">[docs]</a>
+<span class="k">def</span> <span class="nf">pitch</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_ra</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_dec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate sun pitch angle for spacecraft attitude.</span>
 
@@ -478,6 +500,7 @@
     <span class="k">return</span> <span class="n">pitch</span></div>
 
 
+
 <span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">_radec2eci</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -494,7 +517,9 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">d</span><span class="p">)])</span>
 
 
-<div class="viewcode-block" id="nominal_roll"><a class="viewcode-back" href="../../index.html#ska_sun.sun.nominal_roll">[docs]</a><span class="k">def</span> <span class="nf">nominal_roll</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_ra</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_dec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="nominal_roll">
+<a class="viewcode-back" href="../../index.html#ska_sun.sun.nominal_roll">[docs]</a>
+<span class="k">def</span> <span class="nf">nominal_roll</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_ra</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_dec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate the nominal roll angle for the given spacecraft attitude.</span>
 
@@ -532,6 +557,7 @@
     <span class="k">return</span> <span class="n">roll</span></div>
 
 
+
 <span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">_nominal_roll</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">sun_ra</span><span class="p">,</span> <span class="n">sun_dec</span><span class="p">):</span>
     <span class="n">sun_eci</span> <span class="o">=</span> <span class="n">_radec2eci</span><span class="p">(</span><span class="n">sun_ra</span><span class="p">,</span> <span class="n">sun_dec</span><span class="p">)</span>
@@ -551,7 +577,9 @@
     <span class="k">return</span> <span class="n">roll</span>
 
 
-<div class="viewcode-block" id="off_nominal_roll"><a class="viewcode-back" href="../../index.html#ska_sun.sun.off_nominal_roll">[docs]</a><span class="k">def</span> <span class="nf">off_nominal_roll</span><span class="p">(</span><span class="n">att</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_ra</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_dec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="off_nominal_roll">
+<a class="viewcode-back" href="../../index.html#ska_sun.sun.off_nominal_roll">[docs]</a>
+<span class="k">def</span> <span class="nf">off_nominal_roll</span><span class="p">(</span><span class="n">att</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_ra</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_dec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate off-nominal roll angle for spacecraft attitude ``att``.</span>
 
@@ -609,11 +637,39 @@
     <span class="k">return</span> <span class="n">off_nom_roll</span></div>
 
 
-<div class="viewcode-block" id="get_sun_pitch_yaw"><a class="viewcode-back" href="../../index.html#ska_sun.sun.get_sun_pitch_yaw">[docs]</a><span class="k">def</span> <span class="nf">get_sun_pitch_yaw</span><span class="p">(</span><span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_ra</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_dec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_sun_pitch_yaw">
+<a class="viewcode-back" href="../../index.html#ska_sun.sun.get_sun_pitch_yaw">[docs]</a>
+<span class="k">def</span> <span class="nf">get_sun_pitch_yaw</span><span class="p">(</span>
+    <span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_ra</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_dec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coord_system</span><span class="o">=</span><span class="s2">&quot;spacecraft&quot;</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get Sun pitch and yaw angles of Sky coordinate(s).</span>
 
 <span class="sd">    If ``time`` is provided then that is used to compute the sun position. Otherwise</span>
 <span class="sd">    ``sun_ra`` and ``sun_dec`` must be provided.</span>
+
+<span class="sd">    The yaw coordinate system can be &quot;spacecraft&quot; (default) or &quot;ORviewer&quot;. The</span>
+<span class="sd">    &quot;spacecraft&quot; system matches the engineering definition of yaw about the Sun at</span>
+<span class="sd">    a sun pitch of 90 degrees: zero yaw is defined as the ECI z-axis if the Sun is at</span>
+<span class="sd">    exactly RA = Dec = 0.</span>
+
+<span class="sd">    The example below uses real telemetry from the 2024:036 NSM recovery activity. At around</span>
+<span class="sd">    2024:036:01:32:00.000, a &quot;positive yaw bias of 0.025 deg/s for 30 minutes&quot; was</span>
+<span class="sd">    applied. The yaw maneuver converged to a stable attitude around  0210z. The</span>
+<span class="sd">    expectation is that pitch is 90.0 and yaw *increases* by 45 degrees of the maneuver.</span>
+<span class="sd">    ::</span>
+
+<span class="sd">      &gt;&gt;&gt; from ska_sun import get_sun_pitch_yaw</span>
+<span class="sd">      &gt;&gt;&gt; from Quaternion import Quat</span>
+
+<span class="sd">      # From telemetry at 2024:036 0130z and 0210z</span>
+<span class="sd">      &gt;&gt;&gt; att0 = Quat([60.35823393, -34.92322161, 291.13817936])</span>
+<span class="sd">      &gt;&gt;&gt; att1 = Quat([111.94789334, -71.01495527, 335.27170577])</span>
+
+<span class="sd">      &gt;&gt;&gt; get_sun_pitch_yaw(att0.ra, att0.dec, time=&quot;2024:036:01:30:00&quot;)</span>
+<span class="sd">      (90.60565371045911, 126.82092681074306)</span>
+<span class="sd">      &gt;&gt;&gt; get_sun_pitch_yaw(att1.ra, att1.dec, time=&quot;2024:036:02:10:00&quot;)</span>
+<span class="sd">      (90.97070080025568, 171.81963428481384)</span>
 
 <span class="sd">    :param ra: float, ndarray</span>
 <span class="sd">        RA(s)</span>
@@ -626,6 +682,8 @@
 <span class="sd">        RA of sun.  If not given, use estimated sun RA at ``date``.</span>
 <span class="sd">    :param sun_dec: float, optional</span>
 <span class="sd">        Dec of sun.  If not given, use estimated sun dec at ``date``.</span>
+<span class="sd">    :param coord_system: str, optional</span>
+<span class="sd">        Coordinate system for yaw (&quot;spacecraft&quot; | &quot;ORviewer&quot;, default=&quot;spacecraft&quot;).</span>
 
 <span class="sd">    :returns:</span>
 <span class="sd">        2-tuple (pitch, yaw) in degrees.</span>
@@ -649,17 +707,46 @@
     <span class="c1"># get_sun_pitch_yaw(109, 55.3, time=&#39;2021:242&#39;) ~ (60, 30)</span>
     <span class="c1"># get_sun_pitch_yaw(238.2, -58.9, time=&#39;2021:242&#39;) ~ (90, 210)</span>
     <span class="n">pitch</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">att_sun</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-    <span class="n">yaw</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">att_sun</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">att_sun</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>  <span class="c1"># -pi &lt;= yaw &lt; pi</span>
+    <span class="n">sign</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">coord_system</span> <span class="o">==</span> <span class="s2">&quot;spacecraft&quot;</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">yaw</span> <span class="o">=</span> <span class="n">sign</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">att_sun</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">att_sun</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>  <span class="c1"># -pi &lt;= yaw &lt; pi</span>
     <span class="n">yaw</span> <span class="o">=</span> <span class="n">yaw</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>  <span class="c1"># 0 &lt;= yaw &lt; 2pi</span>
 
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">pitch</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">yaw</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="apply_sun_pitch_yaw"><a class="viewcode-back" href="../../index.html#ska_sun.sun.apply_sun_pitch_yaw">[docs]</a><span class="k">def</span> <span class="nf">apply_sun_pitch_yaw</span><span class="p">(</span><span class="n">att</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yaw</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_ra</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_dec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="apply_sun_pitch_yaw">
+<a class="viewcode-back" href="../../index.html#ska_sun.sun.apply_sun_pitch_yaw">[docs]</a>
+<span class="k">def</span> <span class="nf">apply_sun_pitch_yaw</span><span class="p">(</span>
+    <span class="n">att</span><span class="p">,</span> <span class="n">pitch</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yaw</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_ra</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sun_dec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coord_system</span><span class="o">=</span><span class="s2">&quot;spacecraft&quot;</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply pitch(es) and yaw(s) about Sun line to an attitude.</span>
 
 <span class="sd">    If ``time`` is provided then that is used to compute the sun position. Otherwise</span>
 <span class="sd">    ``sun_ra`` and ``sun_dec`` must be provided.</span>
+
+<span class="sd">    The yaw coordinate system can be &quot;spacecraft&quot; (default) or &quot;ORviewer&quot;. The</span>
+<span class="sd">    &quot;spacecraft&quot; system matches the engineering definition of yaw about the Sun at</span>
+<span class="sd">    a sun pitch of 90 degrees: zero yaw is defined as the ECI z-axis if the Sun is at</span>
+<span class="sd">    exactly RA = Dec = 0.</span>
+
+<span class="sd">    The example below uses real telemetry from the 2024:036 NSM recovery activity. At</span>
+<span class="sd">    around 2024:036:01:32:00.000, a &quot;positive yaw bias of 0.025 deg/s for 30 minutes&quot;</span>
+<span class="sd">    was applied. The yaw maneuver converged to a stable attitude around  0210z. The</span>
+<span class="sd">    expectation that the computed attitude matches the 0210z attitude from telemetry</span>
+<span class="sd">    to within about a degree.</span>
+<span class="sd">    ::</span>
+
+<span class="sd">      &gt;&gt;&gt; from ska_sun import apply_sun_pitch_yaw</span>
+
+<span class="sd">      &gt;&gt;&gt; # From telemetry at 2024:036 0130z and 0210z</span>
+<span class="sd">      &gt;&gt;&gt; att0 = Quat([60.35823393, -34.92322161, 291.13817936])</span>
+<span class="sd">      &gt;&gt;&gt; att1 = Quat([111.94789334, -71.01495527, 335.27170577])</span>
+
+<span class="sd">      # Apply yaw bias to the 0130z attitude using sun position midway.</span>
+<span class="sd">      &gt;&gt;&gt; att1_apply = apply_sun_pitch_yaw(att0, pitch=0, yaw=45, time=&quot;2024:036:01:47:00&quot;)</span>
+<span class="sd">      &gt;&gt;&gt; att1_apply.equatorial</span>
+<span class="sd">      array([111.44329433, -71.34681456, 335.48326522])</span>
 
 <span class="sd">    :param att: Quaternion-like</span>
 <span class="sd">        Attitude(s) to be rotated.</span>
@@ -671,11 +758,13 @@
 <span class="sd">        RA of sun.  If not given, use estimated sun RA at ``time``.</span>
 <span class="sd">    :param sun_dec: float, optional</span>
 <span class="sd">        Dec of sun.  If not given, use estimated sun dec at ``time``.</span>
+<span class="sd">    :param coord_system: str, optional</span>
+<span class="sd">        Coordinate system for yaw (&quot;spacecraft&quot; | &quot;ORviewer&quot;, default=&quot;spacecraft&quot;).</span>
 
 <span class="sd">    :returns: Quat</span>
 <span class="sd">        Modified attitude(s)</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">att</span><span class="p">,</span> <span class="n">Quat</span><span class="p">):</span>
         <span class="n">att</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">(</span><span class="n">att</span><span class="p">)</span>
 
@@ -693,6 +782,9 @@
 
     <span class="c1"># Broadcast input pitch and yaw to a common shape</span>
     <span class="n">pitches</span><span class="p">,</span> <span class="n">yaws</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">broadcast_arrays</span><span class="p">(</span><span class="n">pitch</span><span class="p">,</span> <span class="n">yaw</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">coord_system</span> <span class="o">==</span> <span class="s2">&quot;spacecraft&quot;</span><span class="p">:</span>
+        <span class="n">yaws</span> <span class="o">=</span> <span class="o">-</span><span class="n">yaws</span>
+
     <span class="n">out_shape</span> <span class="o">=</span> <span class="n">pitches</span><span class="o">.</span><span class="n">shape</span>
     <span class="c1"># Get pitches and yaws as 1-d iterables</span>
     <span class="n">pitches</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">pitches</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
@@ -713,6 +805,7 @@
     <span class="c1"># Reshape into correct output shape and return corresponding quaternion</span>
     <span class="n">qs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">qs</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">out_shape</span> <span class="o">+</span> <span class="p">(</span><span class="mi">4</span><span class="p">,))</span>
     <span class="k">return</span> <span class="n">Quat</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="n">qs</span><span class="p">)</span></div>
+
 </pre></div>
 
             <div class="clearer"></div>
@@ -737,7 +830,7 @@
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2020, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 6.1.3. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 7.2.6. &nbsp;
   </p>
 </footer>
   </body>
