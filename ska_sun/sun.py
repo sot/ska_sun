@@ -2,12 +2,13 @@
 """
 Utility for calculating sun position, pitch angle and values related to roll.
 """
+
 import numba
 import numpy as np
 from astropy.table import Table
 from chandra_aca.planets import get_planet_chandra, get_planet_eci
 from chandra_aca.transform import eci_to_radec, radec_to_eci
-from cxotime import convert_time_format
+from cxotime import CxoTimeLike, convert_time_format
 from numpy import arccos as acos
 from numpy import arcsin as asin
 from numpy import arctan2 as atan2
@@ -708,3 +709,40 @@ def apply_sun_pitch_yaw(
     # Reshape into correct output shape and return corresponding quaternion
     qs = np.array(qs).reshape(out_shape + (4,))
     return Quat(q=qs)
+
+
+def get_att_for_sun_pitch_yaw(
+    pitch: float,
+    yaw: float,
+    time: CxoTimeLike = None,
+    sun_ra: float | None = None,
+    sun_dec: float | None = None,
+    coord_system="spacecraft",
+):
+    """Get sun-pointed attitude for given sun pitch and yaw angles.
+
+    This function is the inverse of ``get_sun_pitch_yaw()``, where the attitude is
+    constrained to have a nominal roll angle.
+
+    """
+    if sun_ra is None or sun_dec is None:
+        sun_ra, sun_dec = position(time)
+
+    # Generate a sun-pointed attitude pointed at the north ecliptic pole. Since the sun
+    # is near the ecliptic plane this never has numerical problems and pitch0 is around
+    # 90 degress. Then apply the appropriate pitch and yaw offsets to get to the desired
+    # sun pitch and yaw.
+    roll = nominal_roll(0, 90, sun_ra=sun_ra, sun_dec=sun_dec)
+    att0 = Quat([0, 90, roll])
+    pitch0, yaw0 = get_sun_pitch_yaw(
+        att0.ra, att0.dec, sun_ra=sun_ra, sun_dec=sun_dec, coord_system=coord_system
+    )
+    att = apply_sun_pitch_yaw(
+        att0,
+        pitch=pitch - pitch0,
+        yaw=yaw - yaw0,
+        sun_ra=sun_ra,
+        sun_dec=sun_dec,
+        coord_system=coord_system,
+    )
+    return att
