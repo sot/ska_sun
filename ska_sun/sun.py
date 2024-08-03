@@ -717,7 +717,8 @@ def get_att_for_sun_pitch_yaw(
     time: CxoTimeLike = None,
     sun_ra: float | None = None,
     sun_dec: float | None = None,
-    coord_system="spacecraft",
+    coord_system: str = "spacecraft",
+    off_nom_roll: float = 0,
 ):
     """Get sun-pointed attitude for given sun pitch and yaw angles.
 
@@ -728,11 +729,11 @@ def get_att_for_sun_pitch_yaw(
     if sun_ra is None or sun_dec is None:
         sun_ra, sun_dec = position(time)
 
-    # Generate a sun-pointed attitude pointed at the north ecliptic pole. Since the sun
-    # is near the ecliptic plane this never has numerical problems and pitch0 is around
-    # 90 degress. Then apply the appropriate pitch and yaw offsets to get to the desired
-    # sun pitch and yaw.
-    roll = nominal_roll(0, 90, sun_ra=sun_ra, sun_dec=sun_dec)
+    # Generate an attitude pointed at the north ecliptic pole. Since the sun is near the
+    # ecliptic plane this never has numerical problems and pitch0 is around 90 degress.
+    # Then apply the appropriate pitch and yaw offsets to get to the desired sun pitch
+    # and yaw.
+    roll = nominal_roll(0, 90, sun_ra=sun_ra, sun_dec=sun_dec) + off_nom_roll
     att0 = Quat([0, 90, roll])
     pitch0, yaw0 = get_sun_pitch_yaw(
         att0.ra, att0.dec, sun_ra=sun_ra, sun_dec=sun_dec, coord_system=coord_system
