@@ -50,7 +50,9 @@ def load_roll_table():
     - ``CHANDRA_MODELS_REPO_DIR``: root directory of chandra_models repo
     - ``CHANDRA_MODELS_DEFAULT_VERSION``: default version of chandra_models to use
 
-    :returns: ``astropy.table.Table``
+    Returns
+    -------
+    astropy.table.Table
         Table with "pitch" and "off_nom_roll" columns. Detailed provenance information
         is available in the table ``meta`` attribute.
     """
@@ -71,11 +73,16 @@ def allowed_rolldev(pitch, roll_table=None):
     For pitch values outside the range of the table the returned rolldev is -1.0,
     corresonding to a pitch angle outside of the planning limits.
 
-    :param pitch: float, ndarray
+    Parameters
+    ----------
+    pitch : float, ndarray
         Sun pitch angle (deg)
-    :param roll_table: astropy.table.Table
+    roll_table : astropy.table.Table
         Table of pitch/roll values (optional)
-    :returns: float, ndarray
+
+    Returns
+    -------
+    float, ndarray
         Roll deviation (deg)
     """
     if roll_table is None:
@@ -424,9 +431,16 @@ def _radec2eci(ra, dec):
 
     This is a numba-ized version of the original code in Ska.quatutil.
 
-    :param ra: Right Ascension (float, degrees)
-    :param dec: Declination (float, degrees)
-    :returns: numpy array ECI (3-vector)
+    Parameters
+    ----------
+    ra : float
+        Right Ascension (degrees)
+    dec : float
+        Declination (degrees)
+
+    Returns
+    -------
+    numpy array ECI (3-vector)
     """
     r = np.radians(ra)
     d = np.radians(dec)
@@ -579,21 +593,27 @@ def get_sun_pitch_yaw(
       >>> get_sun_pitch_yaw(att1.ra, att1.dec, time="2024:036:02:10:00")
       (90.97070080025568, 171.81963428481384)
 
-    :param ra: float, ndarray
-        RA(s)
-    :param dec: float, ndarray
-        Dec(s)
-    :param time: date-like, optional
+    Parameters
+    ----------
+    ra : float, ndarray
+        RA(s), degrees
+    dec : float, ndarray
+        Dec(s), degrees
+    time : date-like, optional
         Date of observation.
-    :param sun_ra: float, optional
+    sun_ra : float, optional
         RA of sun.  If not given, use estimated sun RA at ``date``.
-    :param sun_dec: float, optional
+    sun_dec : float, optional
         Dec of sun.  If not given, use estimated sun dec at ``date``.
-    :param coord_system: str, optional
+    coord_system : str, optional
         Coordinate system for yaw ("spacecraft" | "ORviewer", default="spacecraft").
 
-    :returns:
-        2-tuple (pitch, yaw) in degrees.
+    Returns
+    -------
+    pitch : float, ndarray
+        Sun pitch angle(s) in degrees.
+    yaw : float, ndarray
+        Sun yaw angle(s) in degrees.
     """
     # If not provided calculate sun RA and Dec using a low-accuracy ephemeris
     if sun_ra is None or sun_dec is None:
@@ -652,22 +672,26 @@ def apply_sun_pitch_yaw(
       >>> att1_apply.equatorial
       array([111.44329433, -71.34681456, 335.48326522])
 
-    :param att: Quaternion-like
+    Parameters
+    ----------
+    att : Quaternion-like
         Attitude(s) to be rotated.
-    :param pitch: float, ndarray
+    pitch : float, ndarray
         Sun pitch offsets (deg)
-    :param yaw: float, ndarray
+    yaw : float, ndarray
         Sun yaw offsets (deg)
-    :param time: CxoTimeLike, optional
+    time : CxoTimeLike, optional
         Time for sun position.
-    :param sun_ra: float, optional
+    sun_ra : float, optional
         RA of sun.  If not given, use estimated sun RA at ``time``.
-    :param sun_dec: float, optional
+    sun_dec : float, optional
         Dec of sun.  If not given, use estimated sun dec at ``time``.
-    :param coord_system: str, optional
+    coord_system : str, optional
         Coordinate system for yaw ("spacecraft" | "ORviewer", default="spacecraft").
 
-    :returns: Quat
+    Returns
+    -------
+    Quat
         Modified attitude(s)
     """
 
@@ -721,11 +745,11 @@ def get_att_for_sun_pitch_yaw(
     sun_dec: float | None = None,
     coord_system: str = "spacecraft",
     off_nom_roll: float = 0,
-):
+) -> Quat:
     """Get sun-pointed attitude for given sun pitch and yaw angles.
 
     This function is the inverse of ``get_sun_pitch_yaw()``, where the attitude is
-    constrained to have a nominal roll angle.
+    constrained to have the specified ``off_nom_roll`` angle (default=0).
 
     Parameters
     ----------
