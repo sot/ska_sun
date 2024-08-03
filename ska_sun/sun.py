@@ -33,6 +33,7 @@ __all__ = [
     "off_nominal_roll",
     "get_sun_pitch_yaw",
     "apply_sun_pitch_yaw",
+    "get_att_for_sun_pitch_yaw",
 ]
 
 
@@ -378,8 +379,8 @@ def pitch(ra, dec, time=None, sun_ra=None, sun_dec=None, method=None):
     """
     Calculate sun pitch angle for spacecraft attitude.
 
-    If ``time`` is provided then that is used to compute the sun position. Otherwise
-    ``sun_ra`` and ``sun_dec`` must be provided.
+    If both ``sun_ra`` and ``sun_dec`` are provided then those are used for the Sun
+    position; otherwise ``time`` is used to compute the Sun position.
 
     ``method`` sets the method for computing the sun position which is used for pitch.
     See ``position()`` for details.
@@ -409,7 +410,7 @@ def pitch(ra, dec, time=None, sun_ra=None, sun_dec=None, method=None):
     >>> ska_sun.pitch(10., 20., '2009:001:00:01:02')
     96.256434327840864
     """
-    if time is not None:
+    if sun_ra is None or sun_dec is None:
         sun_ra, sun_dec = position(time, method=method)
     pitch = sph_dist(ra, dec, sun_ra, sun_dec)
 
@@ -436,8 +437,8 @@ def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None, method=None):
     """
     Calculate the nominal roll angle for the given spacecraft attitude.
 
-    If ``time`` is provided then that is used to compute the sun position. Otherwise
-    ``sun_ra`` and ``sun_dec`` must be provided.
+    If both ``sun_ra`` and ``sun_dec`` are provided then those are used for the Sun
+    position; otherwise ``time`` is used to compute the Sun position.
 
     Parameters
     ----------
@@ -464,7 +465,7 @@ def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None, method=None):
     >>> nominal_roll(205.3105, -14.6925, time='2011:019:20:51:13')
     68.830209134280665    # vs. 68.80 for obsid 12393 in JAN1711A
     """
-    if time is not None:
+    if sun_ra is None or sun_dec is None:
         sun_ra, sun_dec = position(time, method=method)
     roll = _nominal_roll(ra, dec, sun_ra, sun_dec)
     return roll
@@ -493,8 +494,8 @@ def off_nominal_roll(att, time=None, sun_ra=None, sun_dec=None, method=None):
     """
     Calculate off-nominal roll angle for spacecraft attitude ``att``.
 
-    If ``time`` is provided then that is used to compute the sun position. Otherwise
-    ``sun_ra`` and ``sun_dec`` must be provided.
+    If both ``sun_ra`` and ``sun_dec`` are provided then those are used for the Sun
+    position; otherwise ``time`` is used to compute the Sun position.
 
     ``method`` sets the method for computing the sun position. See ``position()`` for
     details.
@@ -512,7 +513,7 @@ def off_nominal_roll(att, time=None, sun_ra=None, sun_dec=None, method=None):
     att : QuatLike
         Chandra attitude.
     time : CxoTimeLike (optional)
-        Time of observation.  If not given, use ``sun_ra`` and ``sun_dec``.
+        Time of observation.
     sun_ra: float, optional
         Sun RA (deg) instead of time.
     sun_dec : float, optional
@@ -525,7 +526,7 @@ def off_nominal_roll(att, time=None, sun_ra=None, sun_dec=None, method=None):
     float
         Off-nominal roll angle in the range of -180 to 180 degrees.
     """
-    if time is not None:
+    if sun_ra is None or sun_dec is None:
         sun_ra, sun_dec = position(time, method=method)
 
     if isinstance(att, Quat):
@@ -552,8 +553,8 @@ def get_sun_pitch_yaw(
 ):
     """Get Sun pitch and yaw angles of Sky coordinate(s).
 
-    If ``time`` is provided then that is used to compute the sun position. Otherwise
-    ``sun_ra`` and ``sun_dec`` must be provided.
+    If both ``sun_ra`` and ``sun_dec`` are provided then those are used for the Sun
+    position; otherwise ``time`` is used to compute the Sun position.
 
     The yaw coordinate system can be "spacecraft" (default) or "ORviewer". The
     "spacecraft" system matches the engineering definition of yaw about the Sun at
@@ -583,8 +584,7 @@ def get_sun_pitch_yaw(
     :param dec: float, ndarray
         Dec(s)
     :param time: date-like, optional
-        Date of observation.  If not given, use ``sun_ra`` and ``sun_dec``
-        if provided or else use current date.
+        Date of observation.
     :param sun_ra: float, optional
         RA of sun.  If not given, use estimated sun RA at ``date``.
     :param sun_dec: float, optional
@@ -626,8 +626,8 @@ def apply_sun_pitch_yaw(
 ):
     """Apply pitch(es) and yaw(s) about Sun line to an attitude.
 
-    If ``time`` is provided then that is used to compute the sun position. Otherwise
-    ``sun_ra`` and ``sun_dec`` must be provided.
+    If both ``sun_ra`` and ``sun_dec`` are provided then those are used for the Sun
+    position; otherwise ``time`` is used to compute the Sun position.
 
     The yaw coordinate system can be "spacecraft" (default) or "ORviewer". The
     "spacecraft" system matches the engineering definition of yaw about the Sun at
@@ -658,6 +658,8 @@ def apply_sun_pitch_yaw(
         Sun pitch offsets (deg)
     :param yaw: float, ndarray
         Sun yaw offsets (deg)
+    :param time: CxoTimeLike, optional
+        Time for sun position.
     :param sun_ra: float, optional
         RA of sun.  If not given, use estimated sun RA at ``time``.
     :param sun_dec: float, optional
@@ -725,6 +727,27 @@ def get_att_for_sun_pitch_yaw(
     This function is the inverse of ``get_sun_pitch_yaw()``, where the attitude is
     constrained to have a nominal roll angle.
 
+    Parameters
+    ----------
+    pitch : float
+        Sun pitch angle (deg)
+    yaw : float
+        Sun yaw angle (deg)
+    time : CxoTimeLike, optional
+        Time for sun position.
+    sun_ra : float, optional
+        Sun RA (deg) instead of time.
+    sun_dec : float, optional
+        Sun Dec (deg) instead of time.
+    coord_system : str, optional
+        Coordinate system for yaw ("spacecraft" | "ORviewer", default="spacecraft").
+    off_nom_roll : float, optional
+        Off-nominal roll angle (deg)
+
+    Returns
+    -------
+    att : Quat
+        Attitude quaternion.
     """
     if sun_ra is None or sun_dec is None:
         sun_ra, sun_dec = position(time)
