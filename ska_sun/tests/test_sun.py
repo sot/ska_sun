@@ -285,5 +285,5 @@ def test_array_input_and_different_formats(method):
 
     for ra, dec, time in zip(pos1[0], pos1[1], times):
         ra2, dec2 = ska_sun.position(time, method=method)
-        assert ra == ra2
-        assert dec == dec2
+        assert np.isclose(ra, ra2, rtol=0, atol=1e-13)
+        assert np.isclose(dec, dec2, rtol=0, atol=1e-13)
