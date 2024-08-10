@@ -338,3 +338,30 @@ def test_nsm_attitude_corner_case():
     off_nom_roll_nsm = ska_sun.off_nominal_roll(att_nsm, date)
     assert np.isclose(off_nom_roll0, 0, rtol=0, atol=1e-4)
     assert np.isclose(off_nom_roll_nsm, 0, rtol=0, atol=1e-4)
+
+
+@pytest.mark.parametrize("use_time", [True, False])
+@pytest.mark.parametrize("coord_system", ["spacecraft", "ORviewer", None])
+def test_get_att_for_sun_pitch_yaw(use_time: bool, coord_system):
+    np.random.seed(1)
+    n_test = 100
+    dates = CxoTime("2024:001") + np.random.uniform(0, 1, n_test) * u.yr
+    pitches = np.random.uniform(45, 178.0, n_test)
+    yaws = np.random.uniform(0, 360, n_test)
+    off_nom_rolls = np.random.uniform(-20, 20, n_test)
+    for date, pitch, yaw, off_nom_roll in zip(dates, pitches, yaws, off_nom_rolls):
+        sun_ra, sun_dec = ska_sun.position(date)
+        kwargs_pos = (
+            {"time": date} if use_time else {"sun_ra": sun_ra, "sun_dec": sun_dec}
+        )
+        kwargs_coord = {} if coord_system is None else {"coord_system": coord_system}
+        att = ska_sun.get_att_for_sun_pitch_yaw(
+            pitch, yaw, off_nom_roll=off_nom_roll, **(kwargs_pos | kwargs_coord)
+        )
+        pitch_out, yaw_out = ska_sun.get_sun_pitch_yaw(
+            att.ra, att.dec, **(kwargs_pos | kwargs_coord)
+        )
+        off_nom_roll_out = ska_sun.off_nominal_roll(att, **kwargs_pos)
+        assert np.isclose(pitch_out, pitch, rtol=0, atol=1e-4)
+        assert np.isclose(yaw_out, yaw, rtol=0, atol=1e-4)
+        assert np.isclose(off_nom_roll_out, off_nom_roll, rtol=0, atol=1e-4)
