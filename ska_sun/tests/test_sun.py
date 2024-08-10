@@ -10,6 +10,7 @@ import ska_sun
 from ska_sun import (
     allowed_rolldev,
     apply_sun_pitch_yaw,
+    get_nsm_attitude,
     get_sun_pitch_yaw,
     nominal_roll,
     off_nominal_roll,
@@ -287,3 +288,53 @@ def test_array_input_and_different_formats(method):
         ra2, dec2 = ska_sun.position(time, method=method)
         assert np.isclose(ra, ra2, rtol=0, atol=1e-13)
         assert np.isclose(dec, dec2, rtol=0, atol=1e-13)
+
+
+@pytest.mark.parametrize("pitch", [90, 130, 160])
+def test_nsm_attitude_random_atts(pitch):
+    np.random.seed(0)
+    n_test = 10
+    date = "2024:001"
+    ras = np.random.uniform(0, 360, n_test)
+    decs = np.random.uniform(-90, 90, n_test)
+    rolls = [
+        ska_sun.nominal_roll(ra, dec, time=date) + np.random.uniform(-20, 20)
+        for ra, dec in zip(ras, decs)
+    ]
+
+    for ra, dec, roll in zip(ras, decs, rolls):
+        att0 = Quat([ra, dec, roll])
+        att_nsm = get_nsm_attitude(att0, date, pitch)
+        pitch_nsm = ska_sun.pitch(att_nsm.ra, att_nsm.dec, date)
+        assert np.isclose(pitch_nsm, pitch, rtol=0, atol=1e-4)
+        off_nom_roll_nsm = ska_sun.off_nominal_roll(att_nsm, date)
+        assert np.isclose(off_nom_roll_nsm, 0, rtol=0, atol=1e-4)
+
+
+def test_nsm_attitude_corner_case():
+    """Attitude which is already at exactly the NSM attitude.
+    This tests the lines::
+      if norm2 < 1e-16:
+          rot_axis = np.array([1., 0., 0.])
+    In development, a temporary print statement verified that this branch was taken.
+    Attitude is from::
+      ska_sun.get_att_for_sun_pitch_yaw(time="2024:001", pitch=90, yaw=85, off_nom_roll=0)
+    """
+    date = "2024:001"
+    att0 = Quat(
+        [
+            -0.5462715389868936,
+            -0.07466130207138927,
+            0.04050165010577328,
+            0.8332902927579349,
+        ]
+    )
+    att_nsm = get_nsm_attitude(att0, "2024:001")
+    pitch = ska_sun.pitch(att0.ra, att0.dec, date)
+    pitch_nsm = ska_sun.pitch(att_nsm.ra, att_nsm.dec, date)
+    assert np.isclose(pitch, 90, rtol=0, atol=1e-4)
+    assert np.isclose(pitch_nsm, 90, rtol=0, atol=1e-4)
+    off_nom_roll0 = ska_sun.off_nominal_roll(att0, date)
+    off_nom_roll_nsm = ska_sun.off_nominal_roll(att_nsm, date)
+    assert np.isclose(off_nom_roll0, 0, rtol=0, atol=1e-4)
+    assert np.isclose(off_nom_roll_nsm, 0, rtol=0, atol=1e-4)

@@ -13,7 +13,7 @@ from numpy import arccos as acos
 from numpy import arcsin as asin
 from numpy import arctan2 as atan2
 from numpy import cos, degrees, pi, radians, sin
-from Quaternion import Quat
+from Quaternion import Quat, QuatLike
 from ska_helpers import chandra_models
 
 from ska_sun import conf
@@ -34,6 +34,7 @@ __all__ = [
     "get_sun_pitch_yaw",
     "apply_sun_pitch_yaw",
     "get_att_for_sun_pitch_yaw",
+    "get_nsm_attitude",
 ]
 
 
@@ -794,3 +795,59 @@ def get_att_for_sun_pitch_yaw(
         coord_system=coord_system,
     )
     return att
+
+
+def get_nsm_attitude(att: QuatLike, time: CxoTimeLike, pitch: float = 90) -> Quat:
+    """
+    Calculate the closest Normal Sun Mode attitude from starting attitude.
+
+    The default is for a NSM pitch of 90 degrees (pure minus-Z at sun). An arbitrary
+    offset pitch angle can be specified.
+
+    The calculation is based on the Chandra - sun vector in ECI. The function defines
+    the vector in the body frame that will be pointed at the sun. The normal sun mode
+    maneuver is then calculated as the shortest maneuver that points that vector at the
+    Sun. Note that for off-nominal roll, this is NOT a pure pitch maneuver.
+
+    Parameters
+    ----------
+    att : Quat
+        Attitude that can initialize a Quat().
+    time : CxoTimeLike
+        Time in a valid Chandra.Time format.
+    pitch : float, optional
+        NSM pitch angle in degrees. The default is 90.
+
+    Returns
+    -------
+    Quat
+        NSM attitude quaternion.
+    """
+    # Calc Chanrda - sun vector in ECI (ignore CXO orbit)
+    (sun_ra, sun_dec) = position(time)
+    sun_eci = np.array(_radec2eci(sun_ra, sun_dec))
+
+    cxo_att = Quat(att)
+
+    # Define the vector in body frame that will be pointed at the sun.
+    # Pitch=90 (pure minus-Z at sun) : [0, 0, -1]
+    # Pitch=160 (toward aft of spacecraft) : [-0.940, 0, -0.342]
+    pitch_rad = np.deg2rad(pitch)
+    vec_sun_body = np.array([np.cos(pitch_rad), 0, -np.sin(pitch_rad)])
+    cxo_z_eci = np.dot(cxo_att.transform, vec_sun_body)
+
+    # Calculate the normal sun mode maneuver as the shortest manvr that points
+    # the Chandra -Z axis at the Sun. Note that for off-nominal roll this is NOT a pure
+    # pitch maneuver.
+    rot_angle = np.arccos(np.dot(cxo_z_eci, sun_eci))
+    rot_axis = np.cross(cxo_z_eci, sun_eci)
+    norm2 = np.dot(rot_axis, rot_axis)
+    if norm2 < 1e-16:
+        rot_axis = np.array([1.0, 0.0, 0.0])
+    else:
+        rot_axis /= np.sqrt(norm2)
+
+    sra = np.sin(rot_angle / 2) * rot_axis
+    manvr = Quat([sra[0], sra[1], sra[2], np.cos(rot_angle / 2)])
+
+    return manvr * cxo_att
