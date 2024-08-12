@@ -2,17 +2,18 @@
 """
 Utility for calculating sun position, pitch angle and values related to roll.
 """
+
 import numba
 import numpy as np
 from astropy.table import Table
 from chandra_aca.planets import get_planet_chandra, get_planet_eci
 from chandra_aca.transform import eci_to_radec, radec_to_eci
-from cxotime import convert_time_format
+from cxotime import CxoTimeLike, convert_time_format
 from numpy import arccos as acos
 from numpy import arcsin as asin
 from numpy import arctan2 as atan2
 from numpy import cos, degrees, pi, radians, sin
-from Quaternion import Quat
+from Quaternion import Quat, QuatLike
 from ska_helpers import chandra_models
 
 from ska_sun import conf
@@ -32,6 +33,8 @@ __all__ = [
     "off_nominal_roll",
     "get_sun_pitch_yaw",
     "apply_sun_pitch_yaw",
+    "get_att_for_sun_pitch_yaw",
+    "get_nsm_attitude",
 ]
 
 
@@ -48,7 +51,9 @@ def load_roll_table():
     - ``CHANDRA_MODELS_REPO_DIR``: root directory of chandra_models repo
     - ``CHANDRA_MODELS_DEFAULT_VERSION``: default version of chandra_models to use
 
-    :returns: ``astropy.table.Table``
+    Returns
+    -------
+    astropy.table.Table
         Table with "pitch" and "off_nom_roll" columns. Detailed provenance information
         is available in the table ``meta`` attribute.
     """
@@ -69,11 +74,16 @@ def allowed_rolldev(pitch, roll_table=None):
     For pitch values outside the range of the table the returned rolldev is -1.0,
     corresonding to a pitch angle outside of the planning limits.
 
-    :param pitch: float, ndarray
+    Parameters
+    ----------
+    pitch : float, ndarray
         Sun pitch angle (deg)
-    :param roll_table: astropy.table.Table
+    roll_table : astropy.table.Table
         Table of pitch/roll values (optional)
-    :returns: float, ndarray
+
+    Returns
+    -------
+    float, ndarray
         Roll deviation (deg)
     """
     if roll_table is None:
@@ -377,8 +387,8 @@ def pitch(ra, dec, time=None, sun_ra=None, sun_dec=None, method=None):
     """
     Calculate sun pitch angle for spacecraft attitude.
 
-    If ``time`` is provided then that is used to compute the sun position. Otherwise
-    ``sun_ra`` and ``sun_dec`` must be provided.
+    If both ``sun_ra`` and ``sun_dec`` are provided then those are used for the Sun
+    position; otherwise ``time`` is used to compute the Sun position.
 
     ``method`` sets the method for computing the sun position which is used for pitch.
     See ``position()`` for details.
@@ -408,7 +418,7 @@ def pitch(ra, dec, time=None, sun_ra=None, sun_dec=None, method=None):
     >>> ska_sun.pitch(10., 20., '2009:001:00:01:02')
     96.256434327840864
     """
-    if time is not None:
+    if sun_ra is None or sun_dec is None:
         sun_ra, sun_dec = position(time, method=method)
     pitch = sph_dist(ra, dec, sun_ra, sun_dec)
 
@@ -422,9 +432,16 @@ def _radec2eci(ra, dec):
 
     This is a numba-ized version of the original code in Ska.quatutil.
 
-    :param ra: Right Ascension (float, degrees)
-    :param dec: Declination (float, degrees)
-    :returns: numpy array ECI (3-vector)
+    Parameters
+    ----------
+    ra : float
+        Right Ascension (degrees)
+    dec : float
+        Declination (degrees)
+
+    Returns
+    -------
+    numpy array ECI (3-vector)
     """
     r = np.radians(ra)
     d = np.radians(dec)
@@ -435,8 +452,8 @@ def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None, method=None):
     """
     Calculate the nominal roll angle for the given spacecraft attitude.
 
-    If ``time`` is provided then that is used to compute the sun position. Otherwise
-    ``sun_ra`` and ``sun_dec`` must be provided.
+    If both ``sun_ra`` and ``sun_dec`` are provided then those are used for the Sun
+    position; otherwise ``time`` is used to compute the Sun position.
 
     Parameters
     ----------
@@ -463,7 +480,7 @@ def nominal_roll(ra, dec, time=None, sun_ra=None, sun_dec=None, method=None):
     >>> nominal_roll(205.3105, -14.6925, time='2011:019:20:51:13')
     68.830209134280665    # vs. 68.80 for obsid 12393 in JAN1711A
     """
-    if time is not None:
+    if sun_ra is None or sun_dec is None:
         sun_ra, sun_dec = position(time, method=method)
     roll = _nominal_roll(ra, dec, sun_ra, sun_dec)
     return roll
@@ -492,8 +509,8 @@ def off_nominal_roll(att, time=None, sun_ra=None, sun_dec=None, method=None):
     """
     Calculate off-nominal roll angle for spacecraft attitude ``att``.
 
-    If ``time`` is provided then that is used to compute the sun position. Otherwise
-    ``sun_ra`` and ``sun_dec`` must be provided.
+    If both ``sun_ra`` and ``sun_dec`` are provided then those are used for the Sun
+    position; otherwise ``time`` is used to compute the Sun position.
 
     ``method`` sets the method for computing the sun position. See ``position()`` for
     details.
@@ -511,7 +528,7 @@ def off_nominal_roll(att, time=None, sun_ra=None, sun_dec=None, method=None):
     att : QuatLike
         Chandra attitude.
     time : CxoTimeLike (optional)
-        Time of observation.  If not given, use ``sun_ra`` and ``sun_dec``.
+        Time of observation.
     sun_ra: float, optional
         Sun RA (deg) instead of time.
     sun_dec : float, optional
@@ -524,7 +541,7 @@ def off_nominal_roll(att, time=None, sun_ra=None, sun_dec=None, method=None):
     float
         Off-nominal roll angle in the range of -180 to 180 degrees.
     """
-    if time is not None:
+    if sun_ra is None or sun_dec is None:
         sun_ra, sun_dec = position(time, method=method)
 
     if isinstance(att, Quat):
@@ -551,8 +568,8 @@ def get_sun_pitch_yaw(
 ):
     """Get Sun pitch and yaw angles of Sky coordinate(s).
 
-    If ``time`` is provided then that is used to compute the sun position. Otherwise
-    ``sun_ra`` and ``sun_dec`` must be provided.
+    If both ``sun_ra`` and ``sun_dec`` are provided then those are used for the Sun
+    position; otherwise ``time`` is used to compute the Sun position.
 
     The yaw coordinate system can be "spacecraft" (default) or "ORviewer". The
     "spacecraft" system matches the engineering definition of yaw about the Sun at
@@ -577,22 +594,27 @@ def get_sun_pitch_yaw(
       >>> get_sun_pitch_yaw(att1.ra, att1.dec, time="2024:036:02:10:00")
       (90.97070080025568, 171.81963428481384)
 
-    :param ra: float, ndarray
-        RA(s)
-    :param dec: float, ndarray
-        Dec(s)
-    :param time: date-like, optional
-        Date of observation.  If not given, use ``sun_ra`` and ``sun_dec``
-        if provided or else use current date.
-    :param sun_ra: float, optional
+    Parameters
+    ----------
+    ra : float, ndarray
+        RA(s), degrees
+    dec : float, ndarray
+        Dec(s), degrees
+    time : date-like, optional
+        Date of observation.
+    sun_ra : float, optional
         RA of sun.  If not given, use estimated sun RA at ``date``.
-    :param sun_dec: float, optional
+    sun_dec : float, optional
         Dec of sun.  If not given, use estimated sun dec at ``date``.
-    :param coord_system: str, optional
+    coord_system : str, optional
         Coordinate system for yaw ("spacecraft" | "ORviewer", default="spacecraft").
 
-    :returns:
-        2-tuple (pitch, yaw) in degrees.
+    Returns
+    -------
+    pitch : float, ndarray
+        Sun pitch angle(s) in degrees.
+    yaw : float, ndarray
+        Sun yaw angle(s) in degrees.
     """
     # If not provided calculate sun RA and Dec using a low-accuracy ephemeris
     if sun_ra is None or sun_dec is None:
@@ -625,8 +647,8 @@ def apply_sun_pitch_yaw(
 ):
     """Apply pitch(es) and yaw(s) about Sun line to an attitude.
 
-    If ``time`` is provided then that is used to compute the sun position. Otherwise
-    ``sun_ra`` and ``sun_dec`` must be provided.
+    If both ``sun_ra`` and ``sun_dec`` are provided then those are used for the Sun
+    position; otherwise ``time`` is used to compute the Sun position.
 
     The yaw coordinate system can be "spacecraft" (default) or "ORviewer". The
     "spacecraft" system matches the engineering definition of yaw about the Sun at
@@ -651,20 +673,26 @@ def apply_sun_pitch_yaw(
       >>> att1_apply.equatorial
       array([111.44329433, -71.34681456, 335.48326522])
 
-    :param att: Quaternion-like
+    Parameters
+    ----------
+    att : Quaternion-like
         Attitude(s) to be rotated.
-    :param pitch: float, ndarray
+    pitch : float, ndarray
         Sun pitch offsets (deg)
-    :param yaw: float, ndarray
+    yaw : float, ndarray
         Sun yaw offsets (deg)
-    :param sun_ra: float, optional
+    time : CxoTimeLike, optional
+        Time for sun position.
+    sun_ra : float, optional
         RA of sun.  If not given, use estimated sun RA at ``time``.
-    :param sun_dec: float, optional
+    sun_dec : float, optional
         Dec of sun.  If not given, use estimated sun dec at ``time``.
-    :param coord_system: str, optional
+    coord_system : str, optional
         Coordinate system for yaw ("spacecraft" | "ORviewer", default="spacecraft").
 
-    :returns: Quat
+    Returns
+    -------
+    Quat
         Modified attitude(s)
     """
 
@@ -708,3 +736,118 @@ def apply_sun_pitch_yaw(
     # Reshape into correct output shape and return corresponding quaternion
     qs = np.array(qs).reshape(out_shape + (4,))
     return Quat(q=qs)
+
+
+def get_att_for_sun_pitch_yaw(
+    pitch: float,
+    yaw: float,
+    time: CxoTimeLike = None,
+    sun_ra: float | None = None,
+    sun_dec: float | None = None,
+    coord_system: str = "spacecraft",
+    off_nom_roll: float = 0,
+) -> Quat:
+    """Get sun-pointed attitude for given sun pitch and yaw angles.
+
+    This function is the inverse of ``get_sun_pitch_yaw()``, where the attitude is
+    constrained to have the specified ``off_nom_roll`` angle (default=0).
+
+    Parameters
+    ----------
+    pitch : float
+        Sun pitch angle (deg)
+    yaw : float
+        Sun yaw angle (deg)
+    time : CxoTimeLike, optional
+        Time for sun position.
+    sun_ra : float, optional
+        Sun RA (deg) instead of time.
+    sun_dec : float, optional
+        Sun Dec (deg) instead of time.
+    coord_system : str, optional
+        Coordinate system for yaw ("spacecraft" | "ORviewer", default="spacecraft").
+    off_nom_roll : float, optional
+        Off-nominal roll angle (deg)
+
+    Returns
+    -------
+    att : Quat
+        Attitude quaternion.
+    """
+    if sun_ra is None or sun_dec is None:
+        sun_ra, sun_dec = position(time)
+
+    # Generate an attitude pointed at the north ecliptic pole. Since the sun is near the
+    # ecliptic plane this never has numerical problems and pitch0 is around 90 degress.
+    # Then apply the appropriate pitch and yaw offsets to get to the desired sun pitch
+    # and yaw.
+    roll = nominal_roll(0, 90, sun_ra=sun_ra, sun_dec=sun_dec) + off_nom_roll
+    att0 = Quat([0, 90, roll])
+    pitch0, yaw0 = get_sun_pitch_yaw(
+        att0.ra, att0.dec, sun_ra=sun_ra, sun_dec=sun_dec, coord_system=coord_system
+    )
+    att = apply_sun_pitch_yaw(
+        att0,
+        pitch=pitch - pitch0,
+        yaw=yaw - yaw0,
+        sun_ra=sun_ra,
+        sun_dec=sun_dec,
+        coord_system=coord_system,
+    )
+    return att
+
+
+def get_nsm_attitude(att: QuatLike, time: CxoTimeLike, pitch: float = 90) -> Quat:
+    """
+    Calculate the closest Normal Sun Mode attitude from starting attitude.
+
+    The default is for a NSM pitch of 90 degrees (pure minus-Z at sun). An arbitrary
+    offset pitch angle can be specified.
+
+    The calculation is based on the Chandra - sun vector in ECI. The function defines
+    the vector in the body frame that will be pointed at the sun. The normal sun mode
+    maneuver is then calculated as the shortest maneuver that points that vector at the
+    Sun. Note that for off-nominal roll, this is NOT a pure pitch maneuver.
+
+    Parameters
+    ----------
+    att : Quat
+        Attitude that can initialize a Quat().
+    time : CxoTimeLike
+        Time in a valid Chandra.Time format.
+    pitch : float, optional
+        NSM pitch angle in degrees. The default is 90.
+
+    Returns
+    -------
+    Quat
+        NSM attitude quaternion.
+    """
+    # Calc Chandra - sun vector in ECI (ignore CXO orbit)
+    (sun_ra, sun_dec) = position(time)
+    sun_eci = np.array(_radec2eci(sun_ra, sun_dec))
+
+    cxo_att = Quat(att)
+
+    # Define the vector in body frame that will be pointed at the sun.
+    # Pitch=90 (pure minus-Z at sun) : [0, 0, -1]
+    # Pitch=160 (toward aft of spacecraft) : [-0.940, 0, -0.342]
+    pitch_rad = np.deg2rad(pitch)
+    vec_sun_body = np.array([np.cos(pitch_rad), 0, -np.sin(pitch_rad)])
+    cxo_z_eci = np.dot(cxo_att.transform, vec_sun_body)
+
+    # Calculate the normal sun mode maneuver as the shortest manvr that points
+    # the Chandra -Z axis at the Sun. Note that for off-nominal roll this is NOT a pure
+    # pitch maneuver.
+    rot_angle = np.arccos(np.dot(cxo_z_eci, sun_eci))
+    rot_axis = np.cross(cxo_z_eci, sun_eci)
+    norm2 = np.dot(rot_axis, rot_axis)
+    if norm2 < 1e-16:
+        rot_axis = np.array([1.0, 0.0, 0.0])
+    else:
+        rot_axis /= np.sqrt(norm2)
+
+    sra = np.sin(rot_angle / 2) * rot_axis
+    manvr = Quat([sra[0], sra[1], sra[2], np.cos(rot_angle / 2)])
+
+    return manvr * cxo_att
