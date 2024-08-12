@@ -823,7 +823,7 @@ def get_nsm_attitude(att: QuatLike, time: CxoTimeLike, pitch: float = 90) -> Qua
     Quat
         NSM attitude quaternion.
     """
-    # Calc Chanrda - sun vector in ECI (ignore CXO orbit)
+    # Calc Chandra - sun vector in ECI (ignore CXO orbit)
     (sun_ra, sun_dec) = position(time)
     sun_eci = np.array(_radec2eci(sun_ra, sun_dec))
 
