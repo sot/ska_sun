@@ -620,13 +620,21 @@ def get_sun_pitch_yaw(
     if sun_ra is None or sun_dec is None:
         sun_ra, sun_dec = position(time)
 
-    # Compute attitude vector in ECI
+    # Broadcast input ra, dec, sun_ra, sun_dec to a common shape
+    ra, dec, sun_ra, sun_dec = np.broadcast_arrays(ra, dec, sun_ra, sun_dec)
+    if len(ra.shape) > 1:
+        print("Inputs must be 1-d or scalar, not multi-dimensional")
+
+    # Compute attitude vector in ECI. Shape from radec_to_eci is (..., 3) where ... is
+    # the broadcast shape.
     att_eci = radec_to_eci(ra, dec)
 
     # Make a Sun frame defined by vector to the Sun assuming roll=0
-    sun_frame = Quat([sun_ra, sun_dec, 0])
-    # Sun frame inverse rotation matrix.
-    sun_frame_rot = sun_frame.transform.T
+    equatorial = np.array([sun_ra, sun_dec, np.zeros_like(sun_ra)])  # (3, ...)
+    # Make Quat from equatorial input, shaped as (..., 3)
+    sun_frame = Quat(equatorial=np.moveaxis(equatorial, 0, -1))
+    # Sun frame inverse rotation matrix (..., 3, 3). Swap final two axes for inverse.
+    sun_frame_rot = sun_frame.transform.swapaxes(-2, -1)
 
     # Compute attitude vector in Sun frame.
     att_sun = np.einsum("...jk,...k->...j", sun_frame_rot, att_eci)
@@ -699,7 +707,7 @@ def apply_sun_pitch_yaw(
     if not isinstance(att, Quat):
         att = Quat(att)
 
-    # If not provided calculate sun RA and Dec using a low-accuracy ephemeris
+    # If not provided calculate sun RA and Dec
     if sun_ra is None or sun_dec is None:
         sun_ra, sun_dec = position(time)
 
